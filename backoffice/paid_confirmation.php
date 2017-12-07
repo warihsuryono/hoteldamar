@@ -1,0 +1,1 @@
+<script language="javascript"> window.location="http://www.bumantara-ts.com/dev/bluefish.co.id/index.php?paid=1&sessid=<?php echo $_GET["sessid"]; ?>";</script>
