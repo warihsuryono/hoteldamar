@@ -1,8 +1,8 @@
 <?php
 	$host="localhost";
-	$user="hotr9431_damar";
-	$pass="hotr9431_damar";
-	$dbname="hotr9431_damar";
+	$user="root";
+	$pass="";
+	$dbname="hoteldamar";
 	$mysqlbinpath="";
 	//$mysqlbinpath="/opt/lampp/bin/";
 	
