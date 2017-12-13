@@ -32,12 +32,29 @@ $trx_booking_view->Page_Main();
 <?php 
 	$updateconfirmasi=$_GET["updateconfirmasi"];
 	$updatecheckin=$_GET["updatecheckin"];
+	$savedp=$_POST["savedp"];
 	$value=$_GET["value"];
 	$kode=$_GET["kode"];
 	$tanggal=$_GET["tanggal"]." ".date("H:i:s");
 	$sql="SELECT room,rate1,rate2 FROM trx_booking WHERE kode='$kode'";
 	$hsltemp=mysql_query($sql,$db);
 	list($room,$rate1,$rate2)=mysql_fetch_array($hsltemp);
+	
+	
+	if($savedp){
+		$xx = $_POST["xx"];
+		if($xx == 1) $xx = "";
+		$dp = unformated($_POST["dp".$xx]);
+		$dptype = $_POST["dptype".$xx];
+		$dpbank = $_POST["dpbank".$xx];
+		$dpdate = $_POST["dpdate".$xx];
+		$refno = $_POST["refno".$xx];
+		$sql="UPDATE trx_booking SET dp".$xx."='".$dp."',dptype".$xx."='".$dptype."',dpbank".$xx."='".$dpbank."',dpdate".$xx."='".$dpdate."',refno".$xx."='".$refno."' WHERE kode='".$kode."'";
+		mysql_query($sql,$db);
+		echo "<font color='blue'>Deposit Saved!</font>";
+	}
+	
+	
 	if($updateconfirmasi){
 		if($value==1){
 			$sql="SELECT title,nama,room,arrival,departure,dp,dptype,dpbank,dp2,dptype2,dpbank2,dp3,dptype3,dpbank3,dp4,dptype4,dpbank4,dp5,dptype5,dpbank5 FROM trx_booking WHERE kode='$kode'";
@@ -61,12 +78,12 @@ $trx_booking_view->Page_Main();
 				$sql="SELECT coa FROM acc_setting_coa WHERE id='1'";
 				$hsltemp=mysql_query($sql,$db);
 				list($coa)=mysql_fetch_array($hsltemp);
-				$keterangan="DP Booking Room Kas[$room ($arrival/$departure)] an. $namacust";
+				$keterangan="DP Reservation Kas[$room ($arrival/$departure)] an. $namacust";
 				add_mutasi_uang($tanggal,"kas",$coa,"",basename($__phpself),$kode,"","",$keterangan,$totalcash,0);
 			}			
 			foreach($arrnoncash as $coabank => $__debitbank){
 				if($__debitbank!=0){
-					$keterangan="DP Booking Room Bank[$room ($arrival/$departure)] an. $namacust";
+					$keterangan="DP Reservation Bank[$room ($arrival/$departure)] an. $namacust";
 					add_mutasi_uang($tanggal,"Bank",$coabank,"",basename($__phpself),$kode,"","",$keterangan,$__debitbank,0);
 				}
 			}			
@@ -134,10 +151,10 @@ trx_booking_view.ValidateRequired = false; // no JavaScript validation
 	}
 </script>
 <?php } ?>
-<p><span class="phpmaker"><h3><b>Booking Room</b></h3>
+<p><span class="phpmaker"><h3><b>Reservation</b></h3>
 <br><br>
 <?php if ($trx_booking->Export == "") { ?>
-[<a href="trx_bookinglist.php">Back to List</a>]&nbsp;&nbsp;&nbsp;
+<input type="button" value="BACK" onclick="window.location='trx_bookinglist.php';">
 <input type="button" value="Guest Form" onclick="window.location='trx_guestform.php?kode=<?php echo $_GET["kode"]; ?>';">
 <?php } ?>
 </span></p>
@@ -205,11 +222,15 @@ trx_booking_view.ValidateRequired = false; // no JavaScript validation
 		<td class="ewTableHeader">Confirmasi</td>
 		<td<?php echo $trx_booking->confirmasi->CellAttributes() ?>>
 			<!--select name="confirmasi" id="confirmasi" onchange="window.location='<?php $_SERVER["PHP_SELF"];?>?updateconfirmasi=1&kode=<?php echo $trx_booking->kode->ViewValue;?>&value='+this.value;"-->
-			<select name="confirmasi" id="confirmasi" onchange="updateconfirmasi('<?php echo $trx_booking->kode->ViewValue;?>',this.value);">
-				<option value="0" <?php if($_confirmasi==0) {echo "selected"; } ?>>Belum</option>
-				<option value="1" <?php if($_confirmasi==1) {echo "selected"; } ?>>Ya</option>
-				<option value="2" <?php if($_confirmasi==2) {echo "selected"; } ?>>Batal</option>
-			</select>
+			<?php if($_checkin!=1) { ?>
+				<select name="confirmasi" id="confirmasi" onchange="updateconfirmasi('<?php echo $trx_booking->kode->ViewValue;?>',this.value);">
+					<option value="0" <?php if($_confirmasi==0) {echo "selected"; } ?>>Belum</option>
+					<option value="1" <?php if($_confirmasi==1) {echo "selected"; } ?>>Ya</option>
+					<option value="2" <?php if($_confirmasi==2) {echo "selected"; } ?>>Batal</option>
+				</select>
+			<?php } else { ?>
+				<div<?php echo $trx_booking->confirmasi->ViewAttributes() ?>><?php echo $trx_booking->confirmasi->ViewValue ?></div>
+			<?php } ?>
 		</td>
 	</tr>
 <?php } ?>
@@ -217,7 +238,7 @@ trx_booking_view.ValidateRequired = false; // no JavaScript validation
 	<tr<?php echo $trx_booking->checkin->RowAttributes ?>>
 		<td class="ewTableHeader">Check In</td>
 		<td<?php echo $trx_booking->checkin->CellAttributes() ?>>
-			<?php if($_confirmasi!=1) { ?>
+			<?php if($_confirmasi!=1 || $_checkin==1) { ?>
 			<div<?php echo $trx_booking->checkin->ViewAttributes() ?>><?php echo $trx_booking->checkin->ViewValue ?></div>
 			<?php } else { ?>
 			<!--select name="checkin" id="checkin" onchange="window.location='<?php $_SERVER["PHP_SELF"];?>?updatecheckin=1&kode=<?php echo $trx_booking->kode->ViewValue;?>&value='+this.value;"-->
@@ -315,32 +336,6 @@ trx_booking_view.ValidateRequired = false; // no JavaScript validation
 <div<?php echo $trx_booking->grup->ViewAttributes() ?>><?php echo $trx_booking->grup->ViewValue ?></div></td>
 	</tr>
 <?php } ?>
-
-<?php
-	$sql="SELECT dp,dptype,dp2,dptype2,dp3,dptype3,dp4,dptype4,dp5,dptype5 FROM trx_booking WHERE kode='".$trx_booking->kode->ViewValue."'";
-	$hsltemp=mysql_query($sql,$db);
-	list($dp,$dptype,$dp2,$dptype2,$dp3,$dptype3,$dp4,$dptype4,$dp5,$dptype5)=mysql_fetch_array($hsltemp);
-	$arrdp[1]=$dp;$arrdptype[1]=$dptype;
-	$arrdp[2]=$dp2;$arrdptype[2]=$dptype2;
-	$arrdp[3]=$dp3;$arrdptype[3]=$dptype3;
-	$arrdp[4]=$dp4;$arrdptype[4]=$dptype4;
-	$arrdp[5]=$dp5;$arrdptype[5]=$dptype5;
-	foreach($arrdp as $xyz => $dp){
-		$dptype=$arrdptype[$xyz];
-		$sql="SELECT description FROM mst_pay_type WHERE kode='$dptype'";
-		$hsltemp=mysql_query($sql,$db);
-		list($dptype)=mysql_fetch_array($hsltemp);
-	?>
-		<?php if ($trx_booking->dp->Visible) { // dp ?>
-			<tr<?php echo $trx_booking->dp->RowAttributes ?>>
-				<td class="ewTableHeader">Dp <?php echo $xyz; ?></td>
-				<td<?php echo $trx_booking->dp->CellAttributes() ?>>
-		<div<?php echo $trx_booking->dp->ViewAttributes() ?>><?php echo $dp; ?> [<?php echo $dptype; ?>]</div></td>
-			</tr>
-		<?php } ?>
-	<?php
-	}
-?>
 <!--
 <?php if ($trx_booking->dp->Visible) { // dp ?>
 	<tr<?php echo $trx_booking->dp->RowAttributes ?>>
@@ -472,7 +467,89 @@ trx_booking_view.ValidateRequired = false; // no JavaScript validation
 <?php } ?>
 </table>
 </div>
-</td></tr></table>
+</td></tr>
+
+<tr>
+	<td colspan="2">
+	<fieldset>
+		<legend><b>Deposits</b></legend>
+		<table class="content_table" width="100%">
+			<tr>
+				<td nowrap><b>Date</b></td>
+				<td nowrap><b>Payment Type</b></td>
+				<td nowrap><b>Nominal</b></td>
+				<td nowrap><b>Bank</b></td>
+				<td nowrap><b>Reference Number</b></td>
+				<td nowrap></td>
+			</tr>
+			<?php
+				$sql="SELECT dp,dptype,dpbank,dpdate,refno,dp2,dptype2,dpbank2,dpdate2,refno2,dp3,dptype3,dpbank3,dpdate3,refno3,dp4,dptype4,dpbank4,dpdate4,refno4,dp5,dptype5,dpbank5,dpdate5,refno5 FROM trx_booking WHERE kode='".$trx_booking->kode->ViewValue."'";
+				$hsltemp=mysql_query($sql,$db);
+				list($dp,$dptype,$dpbank,$dpdate,$refno,$dp2,$dptype2,$dpbank2,$dpdate2,$refno2,$dp3,$dptype3,$dpbank3,$dpdate3,$refno3,$dp4,$dptype4,$dpbank4,$dpdate4,$refno4,$dp5,$dptype5,$dpbank5,$dpdate5,$refno5)=mysql_fetch_array($hsltemp);
+				$arrdp[1]=$dp ;$arrdptype[1]=$dptype; $arrdpbank[1]=$dpbank; $arrdpdate[1]=$dpdate; $arrrefno[1]=$refno;
+				$arrdp[2]=$dp2;$arrdptype[2]=$dptype2;$arrdpbank[2]=$dpbank2;$arrdpdate[2]=$dpdate2;$arrrefno[2]=$refno2;
+				$arrdp[3]=$dp3;$arrdptype[3]=$dptype3;$arrdpbank[3]=$dpbank3;$arrdpdate[3]=$dpdate3;$arrrefno[3]=$refno3;
+				$arrdp[4]=$dp4;$arrdptype[4]=$dptype4;$arrdpbank[4]=$dpbank4;$arrdpdate[4]=$dpdate4;$arrrefno[4]=$refno4;
+				$arrdp[5]=$dp5;$arrdptype[5]=$dptype5;$arrdpbank[5]=$dpbank5;$arrdpdate[5]=$dpdate5;$arrrefno[5]=$refno5;
+				
+				for($xx = 1 ; $xx < 6 ; $xx++){
+					if($arrdpdate[$xx] == "0000-00-00") $arrdpdate[$xx] = date("Y-m-00");
+					$xxx = $xx; 
+					if($xx == 1) $xxx = "";
+					?>
+					<form method="POST">
+						<input type="hidden" name="xx" value="<?=$xx;?>">
+						<tr>
+							<td>
+								<input id="dpdate<?=$xxx;?>" type="text" name="dpdate<?=$xxx;?>" value="<?=$arrdpdate[$xx];?>" size="12">
+								<img src="images/calendar.png" title="Calendar" border="0" width="13" height="13" onclick="showCalendar('dpdate<?=$xxx;?>')">
+							</td>
+							<td>
+								<select name="dptype<?=$xxx;?>" id="dptype<?=$xxx;?>">
+									<option value="">-tipe payment-</option>
+									<?php 
+										$sql="SELECT kode,description FROM mst_pay_type ORDER BY description";
+										$hsltemp=mysql_query($sql,$db);
+										while(list($_kode,$_desc)=mysql_fetch_array($hsltemp)){
+											$selected = "";
+											if($arrdptype[$xx] == $_kode) $selected = "selected";
+									?>
+										<option value="<?php echo $_kode; ?>" <?=$selected;?>><?php echo $_desc; ?></option>
+									<?php
+										}
+									?>
+								</select>
+							</td>
+							<td><input id="dp<?=$xxx;?>" type="text" name="dp<?=$xxx;?>" value="<?=number_format($arrdp[$xx]);?>" size="20" style="text-align:right;"></td>
+							<td>
+								<select name="dpbank<?=$xxx;?>" id="dpbank<?=$xxx;?>">
+									<option value="">-Pilih Bank-</option>
+									<?php
+										$sql="SELECT coa,description FROM acc_mst_coa WHERE koder='AKTIVA LANCAR' AND description LIKE '%bank%' ORDER BY description";
+										$hsltemp=mysql_query($sql,$db);
+										while(list($_kode,$description)=mysql_fetch_array($hsltemp)){
+											$selected = "";
+											if($arrdpbank[$xx] == $_kode) $selected = "selected";
+									?>
+										<option value="<?php echo $_kode; ?>" <?=$selected;?>><?php echo $description; ?></option>
+									<?php
+										}
+									?>
+								</select>
+							</td>
+							<td><input type="text" id="refno<?=$xxx;?>" name="refno<?=$xxx;?>" value="<?=$arrrefno[$xx];?>" placeholder="Reference Number"></td>
+							<td><input type="submit" name="savedp" value="Save"></td>
+						</tr>
+					</form>
+					<?php
+				}
+			?>
+		</table>
+	</fieldset>
+	</td>
+</tr>
+
+</table>
 <p>
 <?php if ($trx_booking->Export == "") { ?>
 <script language="JavaScript" type="text/javascript">

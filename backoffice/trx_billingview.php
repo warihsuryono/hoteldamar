@@ -220,8 +220,8 @@
 				$hsltemp=mysql_query($sql,$db);
 				list($coatax)=mysql_fetch_array($hsltemp);
 				$kredittax=$subtotal2*0.1;
-				$keterangan="Pajak Masukan Additional";
-				$keterangan="Pajak Keluaran Additional";
+				$keterangan="Pajak Masukan Miscellaneous";
+				$keterangan="Pajak Keluaran Miscellaneous";
 				add_jurnal_detail($kodejurnal,$coatax,$keterangan,$debit,$kredittax);
 			}
 			//SERVICE (Kredit)
@@ -232,7 +232,7 @@
 				$hsltemp=mysql_query($sql,$db);
 				list($coaservice)=mysql_fetch_array($hsltemp);
 				$kreditservice=($subtotal2+$kredittax)*0.11;
-				$keterangan="Service Additional";
+				$keterangan="Service Miscellaneous";
 				add_jurnal_detail($kodejurnal,$coaservice,$keterangan,$debit,$kreditservice);
 			}
 		}	
@@ -372,14 +372,14 @@
 		list($coa1)=mysql_fetch_array($hsltemp);
 		
 		if($totalcash!=0){
-			$keterangan="DP Booking Room Cash [$room ($arrival/$departure)] an. $namacust";
+			$keterangan="DP Reservation Cash [$room ($arrival/$departure)] an. $namacust";
 			add_jurnal_detail($kodejurnal,$coa1,$keterangan,$totalcash,0);
 			//echo "<br>add_jurnal_detail($kodejurnal,$coa1,$keterangan,$totalcash,0)";
 		}
 		
 		foreach($arrnoncash as $coabank => $__debitbank){
 			if($__debitbank!=0){
-				$keterangan="DP Booking Room Bank[$room ($arrival/$departure)] an. $namacust";
+				$keterangan="DP Reservation Bank[$room ($arrival/$departure)] an. $namacust";
 				add_jurnal_detail($kodejurnal,$coabank,$keterangan,$__debitbank,0);
 				//echo "<br>add_jurnal_detail($kodejurnal,$coabank,$keterangan,$__debitbank,0)";
 			}
@@ -612,13 +612,12 @@
 			</table>
 		</div>
 		<div id="printarea">
-		<?php $__captiontitle="ROOM BILL";include_once "header_document.php"; ?>
+		<?php $__captiontitle="GUEST BILL";include_once "header_document.php"; ?>
 		<fieldset>
-			<legend><b>Guest Bill</b></legend>
 			<table width="100%">
 				<tr>
-					<td valign="top" width="25%">
-						<table width="25%">
+					<td valign="top" width="45%">
+						<table width="100%">
 							<tr>
 								<td nowrap><b>Bill No</b></td>
 								<td><b>:</b></td>
@@ -635,17 +634,18 @@
 								<td nowrap><?php echo format_tanggal($tanggal); ?></td>
 							</tr>
 							<tr>
-								<td nowrap><b>Name</b></td>
+								<td nowrap><b>Guest Name</b></td>
 								<td><b>:</b></td>
 								<td nowrap><?php echo $title." ".$nama; ?></td>
 							</tr>
-							<tr>
+							<!--tr>
 								<td nowrap><b>ID Number</b></td>
 								<td><b>:</b></td>
 								<td nowrap><?php echo $idno." ($idtype)"; ?></td>
-							</tr>
+							</tr-->
 						</table>
 					<td>
+					<td valign="top" width="10%">&nbsp;</td>
 					<!--td valign="top" width="25%">
 						<table width="25%">
 							<tr>
@@ -680,36 +680,31 @@
 							</tr->
 						</table>
 					<td-->
-					<td valign="top" width="25%">
-						<table width="25%">
+					<td valign="top" width="45%">
+						<table width="100%">
+							<tr>
+								<td nowrap><b>Arrival Date</b></td>
+								<td><b>:</b></td>
+								<td nowrap><?php echo format_tanggal3($arrival); ?></td>
+							</tr>
+							<tr>
+								<td nowrap><b>Departure Date</b></td>
+								<td><b>:</b></td>
+								<td nowrap><?php echo format_tanggal3($tanggal); ?></td>
+							</tr>
+							<tr>
+								<td nowrap><b>Rate</b></td>
+								<td><b>:</b></td>
+								<td nowrap align="right"><?php echo number_format($rate1); ?> / <?php echo number_format($rate2); ?></td>
+							</tr>
 							<tr>
 								<td nowrap><b>Person</b></td>
 								<td><b>:</b></td>
 								<td align="right"><?php echo $person; ?></td>
 							</tr>
-							<tr>
-								<td nowrap><b>Arrival</b></td>
-								<td><b>:</b></td>
-								<td nowrap><?php echo format_tanggal($arrival); ?></td>
-							</tr>
-							<tr>
-								<td nowrap><b>Departure</b></td>
-								<td><b>:</b></td>
-								<td nowrap><?php echo format_tanggal($tanggal); ?></td>
-							</tr>
-							<tr>
-								<td nowrap><b>Rate Week Days</b></td>
-								<td><b>:</b></td>
-								<td align="right"><?php echo number_format($rate1); ?></td>
-							</tr>
-							<tr>
-								<td nowrap><b>Rate Week End</b></td>
-								<td><b>:</b></td>
-								<td align="right"><?php echo number_format($rate2); ?></td>
-							</tr>
 						</table>
 					<td>
-					<td valign="top" width="25%">
+					<!--td valign="top" width="25%">
 						<table width="25%">
 							<tr>
 								<td nowrap><b>Charge Person</b></td>
@@ -732,315 +727,149 @@
 								<td align="right"><?php echo number_format($totalrestaurant); ?></td>
 							</tr>
 							<tr>
-								<td nowrap><b>Additional</b></td>
+								<td nowrap><b>Miscellaneous</b></td>
 								<td><b>:</b></td>
 								<td align="right"><?php echo number_format($totaladditional); ?></td>
-							</tr-->
+							</tr>
 							<tr>
 								<td nowrap><b>Notes</b></td>
 								<td><b>:</b></td>
 								<td><?php echo $notes; ?></td>
 							</tr>
 						</table>
-					</td>
+					</td-->
 				<tr>
 			</table>
 		</fieldset>
-		<?php
-			$sql="SELECT kode FROM trx_restaurant_bill_detail WHERE kode IN (SELECT kode FROM trx_restaurant_bill WHERE kodebooking='$kodebooking' AND (paid='0' OR paid='2')) ORDER BY kode,seqno";
-			$hslrest=mysql_query($sql,$db);
-			if(mysql_affected_rows($db)>0){
-		?>
 		<fieldset>
-			<legend><b>Restaurant Detail</b></legend>
-			<table class="content_table" width="100%">
-				<tr class="content_header">
-					<!--td>No</td-->
-					<td>Bill No</td>
-					<!--td>Food/Drink Code</td-->
-					<td>Description</td>
-					<td>Notes</td>
-					<td>Qty</td>
-					<!--td>Disc</td-->
-					<td>Price</td>
-					<td>Total</td>
+			<legend><b>Guest Bill Detail</b></legend>
+			<table width="100%">
+				<tr>
+					<td nowrap width="15%"><b>Date</b></td>
+					<td nowrap width="55%"><b>Description</b></td>
+					<td nowrap width="15%" align="right"><b>Debit</b></td>
+					<td nowrap width="15%" align="right"><b>Credit</b></td>
 				</tr>
+				<tr><td colspan="4"><hr></td><tr>
 				<?php
-					$no=0;
-					$txtbillno="";
-					$billnonow="";
-					$sql="SELECT kode,foodid,qty,price,keterangan FROM trx_restaurant_bill_detail WHERE kode IN (SELECT kode FROM trx_restaurant_bill WHERE kodebooking='$kodebooking' AND (paid='0' OR paid='2')) ORDER BY kode,seqno";
-					$hslrest=mysql_query($sql,$db);
-					$_subtotal1=0;
-					while(list($billno,$foodid,$qty,$price,$keterangan)=mysql_fetch_array($hslrest)){
-						$sql="SELECT nett,disc FROM trx_restaurant_bill WHERE kode='$billno'";
-						$hsltemp=mysql_query($sql,$db);
-						list($__nett,$__disc)=mysql_fetch_array($hsltemp);
-						if($__nett){$temp=$price*100/111;$price=$temp*100/110;}
-						$disc=$price*$__disc/100;
-						$price=$price-$disc;
-						$_subtotal1+=($price*$qty);
-						$no++;
-						$txtbillno="";
-						if($billnonow!=$billno){$billnonow=$billno;$txtbillno=$billno;if($__nett){$txtbillno.=" (NETT)";}}
-						$sql="SELECT description FROM mst_food WHERE kode='$foodid'";$hsltemp=mysql_query($sql,$db);
-						list($description)=mysql_fetch_array($hsltemp);
-				?>
-					<tr>
-						<!--td align="right"><?php echo $no; ?></td-->
-						<td><?php echo $txtbillno; ?></td>
-						<!--td><?php echo $foodid; ?></td-->
-						<td><?php echo $description; ?></td>
-						<td><?php echo $keterangan; ?></td>
-						<td align="right"><?php echo $qty; ?></td>
-						<!--td align="right"><?php echo number_format($disc); ?></td-->
-						<td align="right"><?php echo number_format($price); ?></td>
-						<td align="right"><?php echo number_format($price*$qty); ?></td>
-					</tr>
-				<?php
+				$sql="DELETE FROM trx_billing_details WHERE kode='".$kode."'";
+				mysql_query($sql,$db);
+				//deposits
+				$sql="SELECT dp,dptype,dpbank,dpdate,refno,dp2,dptype2,dpbank2,dpdate2,refno2,dp3,dptype3,dpbank3,dpdate3,refno3,dp4,dptype4,dpbank4,dpdate4,refno4,dp5,dptype5,dpbank5,dpdate5,refno5 FROM trx_booking WHERE kode='".$kodebooking."'";
+				$hsltemp=mysql_query($sql,$db);
+				list($dp,$dptype,$dpbank,$dpdate,$refno,$dp2,$dptype2,$dpbank2,$dpdate2,$refno2,$dp3,$dptype3,$dpbank3,$dpdate3,$refno3,$dp4,$dptype4,$dpbank4,$dpdate4,$refno4,$dp5,$dptype5,$dpbank5,$dpdate5,$refno5)=mysql_fetch_array($hsltemp);
+				$arrdp[1]=$dp ;$arrdptype[1]=$dptype; $arrdpbank[1]=$dpbank; $arrdpdate[1]=$dpdate; $arrrefno[1]=$refno;
+				$arrdp[2]=$dp2;$arrdptype[2]=$dptype2;$arrdpbank[2]=$dpbank2;$arrdpdate[2]=$dpdate2;$arrrefno[2]=$refno2;
+				$arrdp[3]=$dp3;$arrdptype[3]=$dptype3;$arrdpbank[3]=$dpbank3;$arrdpdate[3]=$dpdate3;$arrrefno[3]=$refno3;
+				$arrdp[4]=$dp4;$arrdptype[4]=$dptype4;$arrdpbank[4]=$dpbank4;$arrdpdate[4]=$dpdate4;$arrrefno[4]=$refno4;
+				$arrdp[5]=$dp5;$arrdptype[5]=$dptype5;$arrdpbank[5]=$dpbank5;$arrdpdate[5]=$dpdate5;$arrrefno[5]=$refno5;
+				foreach($arrdp as $xx => $dp){
+					if($dp > 0){
+						$sql = "SELECT description FROM mst_pay_type WHERE kode = '".$arrdptype[$xx]."'";$hsltemp = mysql_query($sql,$db);
+						list($paytype) = mysql_fetch_array($hsltemp);
+						if($arrdptype[$xx] != "01"){
+							$sql = "SELECT description FROM acc_mst_coa WHERE coa = '".$arrdpbank[$xx]."'";$hsltemp = mysql_query($sql,$db);
+							list($bank) = mysql_fetch_array($hsltemp);
+							$paytype .= " -- ".$bank;
+						}
+						$description = "Deposit [$paytype]";
+						if($arrrefno[$xx]) $description .= " ;Refno: ".$arrrefno[$xx];
+						$sql = "INSERT INTO trx_billing_details (kode,tanggal,description,credit) VALUES ('$kode','".$arrdpdate[$xx]."','$description','$dp')";
+						mysql_query($sql,$db);
 					}
-					
-					$_ppn=$_subtotal1*0.1;
-					$_subtotal2=$_subtotal1+$_ppn;
-					$_service=$_subtotal2*0.11;
-					$__totalrestaurant=$_subtotal2+$_service;
-				?>
-				<tr id="rowdetail_footer">
-					<td valign="top" colspan="5" align="right">
-						<table cellpadding="0" cellspacing="0" width="100%">
-							<tr><td align="right"><i>Sub Total 1</i></td></tr>
-							<tr><td align="right"><i>Tax 10 %</i></td></tr>
-							<tr><td align="right"><i>Sub Total 2</i></td></tr>
-							<tr><td align="right"><i>Service 11 %</i></td></tr>
-							<tr><td align="right"><i>Restaurant Total</i></td></tr>
-						</table>
-					</td>
-					<td valign="top" align="right">
-						<table cellpadding="0" cellspacing="0" width="100%">
-							<tr><td align="right"><?php echo number_format($_subtotal1);?></td></tr>
-							<tr><td align="right"><?php echo number_format($_ppn);?></td></tr>
-							<tr><td align="right"><?php echo number_format($_subtotal2);?></td></tr>
-							<tr><td align="right"><?php echo number_format($_service);?></td></tr>
-							<tr><td align="right"><b><?php echo number_format($__totalrestaurant);?></b></td></tr>
-						</table>
-					</td>					
-				</tr>
-			</table>
-		</fieldset>
-		<?php } ?>
-		<?php
-			$sql="SELECT kode FROM trx_additional_detail WHERE kode IN (SELECT kode FROM trx_additional WHERE kodebooking='$kodebooking' AND (paid='0' OR paid='2')) ORDER BY kode,seqno";
-			$hslrest=mysql_query($sql,$db);
-			if(mysql_affected_rows($db)>0){
-		?>
-		<fieldset>
-			<legend><b>Additional Detail</b></legend>
-			<table class="content_table" width="100%">
-				<tr class="content_header">
-					<!--td>No</td-->
-					<td>Bill No</td>
-					<!--td>Additional Code</td-->
-					<td>Description</td>
-					<td>Notes</td>
-					<td>Qty</td>
-					<!--td>Disc</td-->
-					<td>Price</td>
-					<td>Total</td>
-				</tr>
-				<?php
-					$no=0;
-					$txtbillno="";
-					$billnonow="";
-					$sql="SELECT kode,kode_add,qty,price,keterangan FROM trx_additional_detail WHERE kode IN (SELECT kode FROM trx_additional WHERE kodebooking='$kodebooking' AND (paid='0' OR paid='2')) ORDER BY kode,seqno";
-					$hslrest=mysql_query($sql,$db);
-					$_subtotal1=0;
-					while(list($billno,$addid,$qty,$price,$keterangan)=mysql_fetch_array($hslrest)){
-						$sql="SELECT nett,disc FROM trx_additional WHERE kode='$billno'";
-						$hsltemp=mysql_query($sql,$db);
-						list($__nett,$__disc)=mysql_fetch_array($hsltemp);
-						if($__nett){$temp=$price*100/111;$price=$temp*100/110;}
-						$disc=$price*$__disc/100;
-						$price=$price-$disc;
-						$_subtotal1+=($price*$qty);
-						$no++;
-						$txtbillno="";
-						if($billnonow!=$billno){$billnonow=$billno;$txtbillno=$billno;if($__nett){$txtbillno.=" (NETT)";}}
+				}
+				
+				//room
+				$_tanggalxx=$arrival;
+				while($_tanggalxx!=$tanggal){
+					$arrtgl=explode("-",$_tanggalxx);
+					$_tgl=$arrtgl[2]; $_bln=$arrtgl[1]; $_thn=$arrtgl[0];
+					$tipeday=date("N",mktime(0,0,0,$_bln,$_tgl,$_thn));
+					if($tipeday==7 || $tipeday==1 || $tipeday==2 || $tipeday==3 || $tipeday==4){//weekdays minggu - kamis
+						$description = "Room Charge (Week Days)";
+						$nominal = $rate1;
+					}else{
+						$description = "Room Charge (Week Ends)";
+						$nominal = $rate2;
+					}
+					$sql = "INSERT INTO trx_billing_details (kode,tanggal,description,debit) VALUES ('$kode','".$_tanggalxx."','$description','$nominal')";
+					$_tanggalxx=date("Y-m-d",mktime(0,0,0,$_bln,$_tgl+1,$_thn));
+					mysql_query($sql,$db);
+				}
+				//miscellaneous
+				$sql="SELECT kode FROM trx_additional_detail WHERE kode IN (SELECT kode FROM trx_additional WHERE kodebooking='$kodebooking' AND (paid='0' OR paid='2')) ORDER BY kode,seqno";
+				$hslrest=mysql_query($sql,$db);
+				if(mysql_affected_rows($db)>0){
+				}
+				$sql="SELECT kode,tanggal,paid,refno FROM trx_additional WHERE kodebooking='$kodebooking' ORDER BY kode";
+				$hsladditionals = mysql_query($sql,$db);
+				while(list($kode_additional,$additionalDate,$paid,$refno) = mysql_fetch_array($hsladditionals)){
+					$sql="SELECT kode,kode_add,qty,price,keterangan FROM trx_additional_detail WHERE kode='$kode_additional'  ORDER BY kode,seqno";
+					$hsladditionaldetail=mysql_query($sql,$db);
+					while(list($billno,$addid,$qty,$price,$keterangan)=mysql_fetch_array($hsladditionaldetail)){
 						$sql="SELECT description FROM mst_additional WHERE kode='$addid'";$hsltemp=mysql_query($sql,$db);
-						list($description)=mysql_fetch_array($hsltemp);
-				?>
-					<tr>
-						<!--td align="right"><?php echo $no; ?></td-->
-						<td><?php echo $txtbillno; ?></td>
-						<!--td><?php echo $addid; ?></td-->
-						<td><?php echo $description; ?></td>
-						<td><?php echo $keterangan; ?></td>
-						<td align="right"><?php echo $qty; ?></td>
-						<!--td align="right"><?php echo number_format($disc); ?></td-->
-						<td align="right"><?php echo number_format($price); ?></td>
-						<td align="right"><?php echo number_format($price*$qty); ?></td>
-					</tr>
-				<?php
+						list($additional)=mysql_fetch_array($hsltemp);
+						$description = "Miscellaneous -- $additional";
+						if($keterangan != "") $description .= " ($keterangan)";
+						if($refno) $description .= " ;Refno: ".$refno;
+						$sql = "INSERT INTO trx_billing_details (kode,tanggal,description,debit) VALUES ('$kode','".$additionalDate."','$description','$price')";
+						mysql_query($sql,$db);
+						if($paid == 1){
+							$description = "Miscellaneous Paid -- $additional";
+							$sql = "INSERT INTO trx_billing_details (kode,tanggal,description,credit) VALUES ('$kode','".$additionalDate."','$description','$price')";
+							mysql_query($sql,$db);
+						}
 					}
-					$_ppn=$_subtotal1*0.1;
-					$_subtotal2=$_subtotal1+$_ppn;
-					$_service=$_subtotal2*0.11;
-					$__totaladditional=$_subtotal2+$_service;
+				}
+				$rowdetail = 0;
+				$_debit = 0;
+				$_credit = 0;
+				$totDeposit = 0;
+				$totRoom = 0;
+				$totMiscellaneous = 0;
+				$sql="SELECT tanggal,description,debit,credit FROM trx_billing_details WHERE kode='$kode' ORDER BY tanggal,id";
+				$hslbillings = mysql_query($sql,$db);
+				while(list($tanggalbiling,$description,$debit,$credit) = mysql_fetch_array($hslbillings)){
+					if($debit == 0) $debit = "";
+					if($credit == 0) $credit = "";
+					$rowdetail++;
+					$_debit += $debit;
+					$_credit += $credit;
+					if(strpos(" ".$description,"Deposit") > 0) $totDeposit += $credit;
+					if(strpos(" ".$description,"Room Charge ") > 0) $totRoom += $debit;
+					if(strpos(" ".$description,"Miscellaneous --") > 0) $totMiscellaneous += $debit;
+					if(strpos(" ".$description,"Miscellaneous Paid") > 0) $totDeposit += $credit;
 				?>
-				<tr id="rowdetail_footer">
-					<td valign="top" colspan="5" align="right">
-						<table cellpadding="0" cellspacing="0" width="100%">
-							<tr><td align="right"><i>Sub Total 1</i></td></tr>
-							<tr><td align="right"><i>Tax 10 %</i></td></tr>
-							<tr><td align="right"><i>Sub Total 2</i></td></tr>
-							<tr><td align="right"><i>Service 11 %</i></td></tr>
-							<tr><td align="right"><i>Additional Total</i></td></tr>
-						</table>
-					</td>
-					<td valign="top" align="right">
-						<table cellpadding="0" cellspacing="0" width="100%">
-							<tr><td align="right"><?php echo number_format($_subtotal1);?></td></tr>
-							<tr><td align="right"><?php echo number_format($_ppn);?></td></tr>
-							<tr><td align="right"><?php echo number_format($_subtotal2);?></td></tr>
-							<tr><td align="right"><?php echo number_format($_service);?></td></tr>
-							<tr><td align="right"><b><?php echo number_format($__totaladditional);?></b></td></tr>
-						</table>
-					</td>					
-				</tr>
-			</table>
-		</fieldset>
-		<?php } ?>
-		<?php
-			$sql="SELECT kode FROM trx_pos_detail WHERE kode IN (SELECT kode FROM trx_pos WHERE kodebooking='$kodebooking' AND paid='2') ORDER BY kode,seqno";
-			$hslrest=mysql_query($sql,$db);
-			if(mysql_affected_rows($db)>0){
-		?>
-		<fieldset>
-			<legend><b>Store Detail</b></legend>
-			<table class="content_table" width="100%">
-				<tr class="content_header">
-					<!--td>No</td-->
-					<td>Bill No</td>
-					<!--td>Barcode</td-->
-					<td>Description</td>
-					<td>Qty</td>
-					<td>Price</td>
-					<td>Total</td>
-				</tr>
-				<?php
-					$no=0;
-					$txtbillno="";
-					$billnonow="";
-					$sql="SELECT kode,barcode,qty,harga FROM trx_pos_detail WHERE kode IN (SELECT kode FROM trx_pos WHERE kodebooking='$kodebooking' AND paid='2') ORDER BY kode,seqno";
-					$hslrest=mysql_query($sql,$db);
-					$_subtotaltoko=0;
-					while(list($billno,$barcode,$qty,$price)=mysql_fetch_array($hslrest)){
-						$_subtotaltoko+=($price*$qty);
-						$no++;
-						$txtbillno="";
-						if($billnonow!=$billno){$billnonow=$billno;$txtbillno=$billno;if($__nett){$txtbillno.=" (NETT)";}}
-						$sql="SELECT nama FROM mst_material_part WHERE kode='$barcode'";
-						$hsltemp=mysql_query($sql,$db);
-						list($namabarang)=mysql_fetch_array($hsltemp);
-				?>
-					<tr>
-						<!--td align="right"><?php echo $no; ?></td-->
-						<td><?php echo $billno; ?></td>
-						<!--td><?php echo $barcode; ?></td-->
-						<td><?php echo $namabarang; ?></td>
-						<td align="right"><?php echo $qty; ?></td>
-						<td align="right"><?php echo number_format($price); ?></td>
-						<td align="right"><?php echo number_format($price*$qty); ?></td>
-					</tr>
-				<?php
-					}
-				?>
-				<tr id="rowdetail_footer">
-					<td valign="top" colspan="4" align="right">
-						<table cellpadding="0" cellspacing="0" width="100%">
-							<tr><td align="right"><i>Store Total</i></td></tr>
-						</table>
-					</td>
-					<td valign="top" align="right">
-						<table cellpadding="0" cellspacing="0" width="100%">
-							<tr><td align="right"><b><?php echo number_format($_subtotaltoko);?></b></td></tr>
-						</table>
-					</td>					
-				</tr>
-			</table>
-		</fieldset>
-		<?php } ?>
-		<fieldset>
-			<legend><b>Room Detail</b></legend>
-			
-			<table class="content_table" width="100%">
 				<tr>
-					<td valign="top" width="50%">
-						<table width="100%">
-							<tr>
-								<td align="right"><i>Sub Total</i></td>
-								<td align="right"><?php echo number_format($__subtotal1);?></td>
-							</tr>
-							<tr>
-								<td align="right"><i>Discount</i></td>
-								<td align="right"><?php echo number_format($_discount);?></td>
-							</tr>
-							<tr>
-								<td align="right"><i>Sub Total 2</i></td>
-								<td align="right"><?php echo number_format($__subtotal2);?></td>
-							</tr>
-						</table>
-					<td>
-					<td valign="top" width="50%">
-						<table width="100%">
-							<tr>
-								<td align="right"><i>PPN 10 %</i></td>
-								<td align="right"><?php echo number_format($__ppn);?></td>
-							</tr>
-							<tr>
-								<td align="right"><i>Sub Total 3</i></td>
-								<td align="right"><?php echo number_format($__subtotal3);?></td>
-							</tr>
-							<tr>
-								<td align="right"><i>Service 11 %</i></td>
-								<td align="right"><?php echo number_format($__service);?></td>
-							</tr>
-							<tr>
-								<td align="right"><i>Room Total</i></td>
-								<td align="right"><b><?php echo number_format($__totalroom);?></b></td>
-							</tr>
-						</table>
-					</td>
+					<td><?=format_tanggal3($tanggalbiling);?></td>
+					<td><?=$description;?></td>
+					<td align="right"><?=number_format($debit);?></td>
+					<td align="right"><?=number_format($credit);?></td>
 				</tr>
-			</table>				
-		</fieldset>
-		
-		<fieldset>
-			<legend><b>Summary</b></legend>
-			<table class="content_table" width="100%">
-				<tr id="rowdetail_footer">
-					<td valign="top" colspan="5" align="right">
-						<table cellpadding="0" cellspacing="0" width="100%">
-							<tr><td align="right"><b><i>Resturant</i></b></td></tr>
-							<tr><td align="right"><b><i>Additional</i></b></td></tr>
-							<tr><td align="right"><b><i>Store</i></b></td></tr>
-							<tr><td align="right"><b><i>Room</i></b></td></tr>
-							<tr><td align="right"><b><i>Down Payment</i></b></td></tr>
-							<tr><td align="right"><b><i>Grand Total</i></b></td></tr>
-						</table>
-					</td>
-					<td valign="top" align="right">
-						<table cellpadding="0" cellspacing="0" width="100%">
-							<tr><td align="right"><?php echo number_format($__totalrestaurant);?></td></tr>
-							<tr><td align="right"><?php echo number_format($__totaladditional);?></td></tr>
-							<tr><td align="right"><?php echo number_format($_subtotaltoko);?></td></tr>
-							<tr><td align="right"><?php echo number_format($__totalroom);?></td></tr>
-							<tr><td align="right">(<?php echo number_format($__dp);?>)</td></tr>
-							<tr><td align="right"><b><?php echo number_format($__grandtotal);?></b></td></tr>
-						</table>
-					</td>					
-				</tr>
+				<?php 
+				} 
+				
+				for($xx = $rowdetail; $xx <= 18; $xx++){
+					?><tr><td colspan="4">&nbsp;</td></tr><?php
+				}
+				$balance = $totDeposit - $totRoom - $totMiscellaneous;
+				if($balance <= 0) $balance = "<td></td><td align='right'><b>".number_format($balance * -1)."</b></td>";
+				else $balance = "<td align='right'><b>".number_format($balance)."</b></td>";
+				?>
+				<tr><td></td><td align="right">Deposit</td><td></td><td align="right"><?=number_format($totDeposit);?></td></tr>
+				<tr><td></td><td align="right">Room Charge</td><td align="right"><?=number_format($totRoom);?></td></tr>
+				<tr><td></td><td align="right">Miscellaneous</td><td align="right"><?=number_format($totMiscellaneous);?></td></tr>
+				<tr><td></td><td colspan="3"><hr></td></tr>
+				<tr><td></td><td align="right"><b>Balance</b></td><?=$balance;?></tr>
+				
 			</table>
 		</fieldset>
+		<br><br>
+		<table width="25%">
+			<tr><td width="20%"></td><td align="center">Guest Signature</td></tr>
+			<tr><td></td><td><br><br><br><br><br><br><br></td></tr>
+			<tr><td></td><td align="center"><hr></td></tr>
+		</table>
 		</div>
 		<div id="buttonrowdiv">
 		<input type="button" value="Back" id="backbutton" onclick="window.location='trx_billinglist.php'">

@@ -35,7 +35,7 @@
 		$sql="SELECT nama FROM mst_room WHERE kode='$room'";
 		$hsltemp=mysql_query($sql,$db);
 		list($room)=mysql_fetch_array($hsltemp);
-		$notes="Additional Bill Room $room";
+		$notes="Miscellaneous Bill Room $room";
 		$kodejurnal=add_jurnal($tanggal,$norek,$vendor,$notes);
 		
 		$sql="SELECT notes,room,withppn,withservice,nett,disc,discname FROM trx_additional WHERE kode='".$_GET["kode"]."'";
@@ -114,7 +114,7 @@
 			$hsltemp=mysql_query($sql,$db);
 			list($coatax)=mysql_fetch_array($hsltemp);
 			$kredittax=$subtotal2*0.1;
-			$keterangan="Pajak Keluaran Additional";
+			$keterangan="Pajak Keluaran Miscellaneous";
 			add_jurnal_detail($kodejurnal,$coatax,$keterangan,$debit,$kredittax);
 		}
 		//SERVICE (Kredit)
@@ -125,7 +125,7 @@
 			$hsltemp=mysql_query($sql,$db);
 			list($coaservice)=mysql_fetch_array($hsltemp);
 			$kreditservice=($subtotal2+$kredittax)*0.11;
-			$keterangan="Service Additional";
+			$keterangan="Service Miscellaneous";
 			add_jurnal_detail($kodejurnal,$coaservice,$keterangan,$debit,$kreditservice);
 		}
 			
@@ -135,7 +135,7 @@
 			$sql="SELECT coa FROM acc_setting_coa WHERE id='3'";//Discount
 			$hsltemp=mysql_query($sql,$db);
 			list($coadisc)=mysql_fetch_array($hsltemp);
-			$keterangan="Discount Voucher Additional [$room]";
+			$keterangan="Discount Voucher Miscellaneous [$room]";
 			if($notes){$keterangan.=" ($notes)";}
 			$debit=0;
 			$kreditvoucher=($subtotal+$kredittax+$kreditservice)*-1;
@@ -148,7 +148,7 @@
 		}
 		
 		//KAS/BANK (Debit)
-		$keterangan="Additional Bill [$room]";
+		$keterangan="Miscellaneous Bill [$room]";
 		if($notes){$keterangan.=" ($notes)";}
 		$kredit=0;
 		$debit1=$subtotal2+$kredittax+$kreditservice;
@@ -157,22 +157,22 @@
 			$sql="SELECT coa FROM acc_setting_coa WHERE id='1'";
 			$hsltemp=mysql_query($sql,$db);
 			list($coa1)=mysql_fetch_array($hsltemp);
-			$keterangan="Additional Bill Cash [$room]";
+			$keterangan="Miscellaneous Bill Cash [$room]";
 			add_jurnal_detail($kodejurnal,$coa1,$keterangan,$paycash,0);
 			add_mutasi_uang($tanggal,"kas",$coa1,"",basename($__phpself),$kode,"","",$keterangan,$paycash,0);
 		}
 		if($payedc1>0){
-			$keterangan="Additional Bill EDC [$room] ($noedc1)";
+			$keterangan="Miscellaneous Bill EDC [$room] ($noedc1)";
 			add_jurnal_detail($kodejurnal,$coaedc1,$keterangan,$payedc1,0);
 			add_mutasi_uang($tanggal,"EDC",$coaedc1,"",basename($__phpself),$kode,"","",$keterangan,$payedc1,0);
 		}
 		if($payedc2>0){
-			$keterangan="Additional Bill EDC [$room] ($noedc2)";
+			$keterangan="Miscellaneous Bill EDC [$room] ($noedc2)";
 			add_jurnal_detail($kodejurnal,$coaedc2,$keterangan,$payedc2,0);
 			add_mutasi_uang($tanggal,"EDC",$coaedc2,"",basename($__phpself),$kode,"","",$keterangan,$payedc2,0);
 		}
 		if($paytrf>0){
-			$keterangan="Additional Bill Transfer [$room] ($notrf)";
+			$keterangan="Miscellaneous Bill Transfer [$room] ($notrf)";
 			add_jurnal_detail($kodejurnal,$coatrf,$keterangan,$paytrf,0);
 			add_mutasi_uang($tanggal,"Bank",$coatrf,"",basename($__phpself),$kode,"","",$keterangan,$paytrf,0);
 		}	
@@ -335,8 +335,8 @@
 	<div id="printarea">
 	<form method="POST" action="<?php echo $__phpself; ?>?editing=<?php echo $_GET["editing"];?>&kode=<?php echo $_GET["kode"]; ?>">
 		<input type="hidden" id="idseqno" name="idseqno">
-		<!--table width="100%"><tr><td align="center"><h3><b>ADDITIONAL</b></h3></td></tr></table-->
-		<?php $__captiontitle="ADDITIONAL BILL";include_once "header_document.php"; ?>
+		<!--table width="100%"><tr><td align="center"><h3><b>MISCELLANEOUS</b></h3></td></tr></table-->
+		<?php $__captiontitle="MISCELLANEOUS BILL";include_once "header_document.php"; ?>
 		<table>
 			<tr>
 				<td>Transaction No</td>
@@ -391,7 +391,7 @@
 					<b>No</b>
 				</td>
 				<!--td><b>Code</b></td-->
-				<td width="1"><b>Additional</b></td>
+				<td width="1"><b>Miscellaneous</b></td>
 				<td><b>Notes</b></td>
 				<td width="1"><b>Qty</b></td>
 				<td width="1"><b>Price</b></td>

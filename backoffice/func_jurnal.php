@@ -1,5 +1,5 @@
 <?php
-	function add_mutasi_uang($tanggal,$mode,$coabank,$cardno,$modul,$kode_trx,$kodejurnal,$coa,$notes,$debit,$kredit){
+	function add_mutasi_uang($tanggal,$mode,$coabank,$cardno,$modul,$kode_trx,$kodejurnal,$coa,$notes,$debit,$kredit,$refno = ""){
 		global $db,$__username;
 		if($modul == "acc_jurnal_detail.php"){
 			$kodetrx="TRX/".date("ymd")."/";
@@ -13,6 +13,11 @@
 			$sql.="('$kodetrx','$idseqno','$tanggal','$mode','$coabank','$cardno','$modul','$kode_trx','$kodejurnal','$coa','$notes','$debit','$kredit','$createby',NOW())";
 			mysql_query($sql,$db);
 			return $kodetrx;
+		}
+		if($modul == "trx_additionalview.php" && $refno!=""){
+			$sql="UPDATE trx_additional SET refno='".$refno."' WHERE kode='".$kode_trx."'";
+			mysql_query($sql,$db);
+			return 1;
 		}
 	}
 	function add_jurnal($tanggal,$norek,$vendor,$notes){

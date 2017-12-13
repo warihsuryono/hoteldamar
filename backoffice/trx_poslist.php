@@ -163,7 +163,7 @@ Calendar.setup({
 		</td>
 	</tr>
 	<tr>
-		<td><span class="phpmaker">Kode Booking</span></td>
+		<td><span class="phpmaker">Reservation Code</span></td>
 		<td><span class="ewSearchOpr">contains<input type="hidden" name="z_kodebooking" id="z_kodebooking" value="LIKE"></span></td>
 		<td>			
 			<table cellspacing="0" class="ewItemTable"><tr>
@@ -429,10 +429,10 @@ foreach ($trx_pos_list->ListOptions->Items as $ListOption) {
 <?php } ?>		
 <?php if ($trx_pos->kodebooking->Visible) { // kodebooking ?>
 	<?php if ($trx_pos->SortUrl($trx_pos->kodebooking) == "") { ?>
-		<td style="white-space: nowrap;">Kode Booking</td>
+		<td style="white-space: nowrap;">Reservation Code</td>
 	<?php } else { ?>
 		<td class="ewPointer" onmousedown="ew_Sort(event,'<?php echo $trx_pos->SortUrl($trx_pos->kodebooking) ?>',1);" style="white-space: nowrap;">
-			<table cellspacing="0" class="ewTableHeaderBtn"><tr><td>Kode Booking</td><td style="width: 10px;"><?php if ($trx_pos->kodebooking->getSort() == "ASC") { ?><img src="images/sortup.gif" width="10" height="9" border="0"><?php } elseif ($trx_pos->kodebooking->getSort() == "DESC") { ?><img src="images/sortdown.gif" width="10" height="9" border="0"><?php } ?></td></tr></table>
+			<table cellspacing="0" class="ewTableHeaderBtn"><tr><td>Reservation Code</td><td style="width: 10px;"><?php if ($trx_pos->kodebooking->getSort() == "ASC") { ?><img src="images/sortup.gif" width="10" height="9" border="0"><?php } elseif ($trx_pos->kodebooking->getSort() == "DESC") { ?><img src="images/sortdown.gif" width="10" height="9" border="0"><?php } ?></td></tr></table>
 		</td>
 	<?php } ?>
 <?php } ?>		

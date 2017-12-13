@@ -2,7 +2,7 @@
 	<tr>
 		<td><img src="images/logo.jpg" width="100" height="85"></td>
 		<td align="center" width="80%" valign="bottom" nowrap><h2><b><?php echo $__captiontitle; ?></b></h2></td>
-		<td align="right" nowrap>
+		<td align="right" nowrap style="font-size:12px;">
 				<b>Hotel Damar</b><br>
 				Jalan Kedawung 45<br>
 				Malang - Jawa Timur 65141<br>

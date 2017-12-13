@@ -110,7 +110,7 @@ var ew_DHTMLEditors = [];
 	if ($bSelectLimit)
 		$rs = $trx_additional_list->LoadRecordset($trx_additional_list->lStartRec-1, $trx_additional_list->lDisplayRecs);
 ?>
-<p><span class="phpmaker" style="white-space: nowrap;"> <h3><b> Additional</b></h3>
+<p><span class="phpmaker" style="white-space: nowrap;"> <h3><b> Miscellaneous</b></h3>
 <?php if ($trx_additional->Export == "" && $trx_additional->CurrentAction == "") { ?>
 &nbsp;&nbsp;<a href="<?php echo $trx_additional_list->PageUrl() ?>export=print"><img src="images/b_print.png" title="Printer Friendly" width="16" height="16" border="0"></a>
 &nbsp;&nbsp;<a href="<?php echo $trx_additional_list->PageUrl() ?>export=excel"><img src="images/exportxls.gif" title="Export to Excel" width="16" height="16" border="0"></a>

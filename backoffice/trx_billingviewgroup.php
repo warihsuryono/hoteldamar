@@ -205,14 +205,14 @@
 		list($coa1)=mysql_fetch_array($hsltemp);
 		
 		if($totalcash>0){
-			$keterangan="DP Booking Group Cash ($arrival/$departure) an. $namacust";
+			$keterangan="DP Group Reservation Cash ($arrival/$departure) an. $namacust";
 			add_jurnal_detail($kodejurnal,$coa1,$keterangan,$totalcash,0);
 			//echo "<br>add_jurnal_detail($kodejurnal,$coa1,$keterangan,$totalcash,0)";
 		}
 		
 		foreach($arrnoncash as $coabank => $__debitbank){
 			if($__debitbank!=0){
-				$keterangan="DP Booking Group Bank ($arrival/$departure) an. $namacust";
+				$keterangan="DP Group Reservation Bank ($arrival/$departure) an. $namacust";
 				add_jurnal_detail($kodejurnal,$coabank,$keterangan,$__debitbank,0);
 				//echo "<br>add_jurnal_detail($kodejurnal,$coabank,$keterangan,$__debitbank,0)";
 			}

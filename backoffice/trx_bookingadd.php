@@ -9,7 +9,7 @@
 	$sql="SHOW COLUMNS FROM $tablename WHERE field<>'xtimestamp' AND field<>'id'";
 	$hsltemp=mysql_query($sql,$db);
 	list($kodename)=mysql_fetch_array($hsltemp);
-	if($_GET["editing"]){
+	if($_GET["editing"] && false){
 		$sql="SELECT checkin FROM $tablename WHERE $kodename='".$_GET["kode"]."'";
 		$hsltemp=mysql_query($sql,$db);
 		list($__approved)=mysql_fetch_array($hsltemp);
@@ -23,7 +23,7 @@
 	$errormessage="";
 	if($modebutton=="simpan" || $modebutton=="simpandancheckin"){
 		
-		if(!$tanggal){$errormessage="Isi Tanggal Booking!";$datavalid=false;}
+		if(!$tanggal){$errormessage="Isi Reservation Date!";$datavalid=false;}
 		if(!$title){$errormessage="Pilih Title!";$datavalid=false;}
 		if(!$nama){$errormessage="Isi Nama!";$datavalid=false;}
 		if(!$arrival){$errormessage="Isi Tanggal Arrival!";$datavalid=false;}
@@ -36,12 +36,13 @@
 		
 		if($datavalid){//tidak ada masalah dengan tanggal arrival dan departure
 			$roomavailable=funccekroomavailable($_GET["kode"],$room,$arrival,$departure);
-			if(!$roomavailable){$errormessage="Kamar sudah dipesan! Batalkan bookingan sebelumnya jika tetap ingin di Simpan!";$datavalid=false;}
+			if(!$roomavailable){$errormessage="Kamar sudah dipesan! Batalkan Reservation sebelumnya jika tetap ingin di Simpan!";$datavalid=false;}
 		}
 		
 		if(!$room){$errormessage="Isi Room!";$datavalid=false;}
 		if(!$rate1){$errormessage="Isi Rate Week Days!";$datavalid=false;}
 		if(!$rate2){$errormessage="Isi Rate Week End!";$datavalid=false;}
+		if(!$refno && $dp > 0){$errormessage="Isi Reference Number!";$datavalid=false;}
 	}
 	
 	if(!$datavalid){
@@ -179,13 +180,42 @@
 	</script>
 	<form method="POST" action="<?php echo $__phpself; ?>?editing=<?php echo $_GET["editing"];?>&kode=<?php echo $_GET["kode"]; ?>">
 		<input type="hidden" id="idseqno" name="idseqno">
-		<table width="100%"><tr><td align="center"><h3><b>BOOKING ROOM</b></h3></td></tr></table>
+		<input type="hidden" id="dp2" name="dp2">
+		<input type="hidden" id="dptype2" name="dptype2">
+		<input type="hidden" id="dpbank2" name="dpbank2">
+		<input type="hidden" id="dpdate2" name="dpdate2">
+		<input type="hidden" id="refno2" name="refno2">
+		<input type="hidden" id="dp3" name="dp3">
+		<input type="hidden" id="dptype3" name="dptype3">
+		<input type="hidden" id="dpbank3" name="dpbank3">
+		<input type="hidden" id="dpdate3" name="dpdate3">
+		<input type="hidden" id="refno3" name="refno3">
+		<input type="hidden" id="dp4" name="dp4">
+		<input type="hidden" id="dptype4" name="dptype4">
+		<input type="hidden" id="dpbank4" name="dpbank4">
+		<input type="hidden" id="dpdate4" name="dpdate4">
+		<input type="hidden" id="refno4" name="refno4">
+		<input type="hidden" id="dp5" name="dp5">
+		<input type="hidden" id="dptype5" name="dptype5">
+		<input type="hidden" id="dpbank5" name="dpbank5">
+		<input type="hidden" id="dpdate5" name="dpdate5">
+		<input type="hidden" id="refno5" name="refno5">
+		<input type="hidden" id="roomtipe" name="roomtipe">
+		<input type="hidden" id="jmlkamar" name="jmlkamar">
+		<input type="hidden" id="rate" name="rate">
+		<input type="hidden" id="confirmasi" name="confirmasi">
+		<input type="hidden" id="checkin" name="checkin">
+		<input type="hidden" id="checkinby" name="checkinby">
+		<input type="hidden" id="checkindate" name="checkindate">
+		<input type="hidden" id="confirmby" name="confirmby">
+		<input type="hidden" id="confirmdate" name="confirmdate">
+		<table width="100%"><tr><td align="center"><h3><b>RESERVATION</b></h3></td></tr></table>
 		<table>
 			<tr>
 				<td valign="top">
 					<table>
 						<tr>
-							<td>Kode Booking</td>
+							<td>Reservation Code</td>
 							<td>:</td>
 							<td>
 								<?php if($_GET["editing"]){ ?>
@@ -196,7 +226,7 @@
 							</td>
 						</tr>
 						<tr>
-							<td nowrap>Tanggal Booking</td>
+							<td nowrap>Reservation Date</td>
 							<td>:</td>
 							<td>
 								<input id="tanggal" type="text" name="tanggal" value="<?php echo $tanggal; ?>" size="12">
@@ -266,6 +296,9 @@
 									<option value="">-room-</option>
 									<?php 
 										$sql="SELECT kode,nama FROM mst_room ORDER BY kode";
+										if($_GET["roomtype"]){
+											$sql="SELECT kode,nama FROM mst_room WHERE tipe='".$_GET["roomtype"]."' ORDER BY kode";
+										}
 										$hsltemp=mysql_query($sql,$db);
 										while(list($_kode,$_desc)=mysql_fetch_array($hsltemp)){
 									?>
@@ -336,75 +369,66 @@
 				<td valign="top">
 					<table>
 						<tr>
-							<td nowrap>Down Payment <?php echo $xyz; ?></td>
-							<td>:</td>
-							<td nowrap>
-								<select name="dptype<?php echo $_noxx; ?>" id="dptype<?php echo $_noxx; ?>">
-									<option value="">-tipe payment-</option>
-									<?php 
-										$sql="SELECT kode,description FROM mst_pay_type ORDER BY description";
-										$hsltemp=mysql_query($sql,$db);
-										while(list($_kode,$_desc)=mysql_fetch_array($hsltemp)){
-									?>
-										<option value="<?php echo $_kode; ?>"><?php echo $_desc; ?></option>
-									<?php
-										}
-									?>
-								</select>
-								Rp.<input id="dp<?php echo $_noxx; ?>" type="text" name="dp<?php echo $_noxx; ?>" size="20" style="text-align:right;">
-								<select name="dpbank<?php echo $_noxx; ?>" id="dpbank<?php echo $_noxx; ?>">
-									<option value="">-Pilih Bank-</option>
-									<?php
-										$sql="SELECT coa,description FROM acc_mst_coa WHERE koder='AKTIVA LANCAR' AND description LIKE '%bank%' ORDER BY description";
-										$hsltemp=mysql_query($sql,$db);
-										while(list($_kode,$description)=mysql_fetch_array($hsltemp)){
-									?>
-										<option value="<?php echo $_kode; ?>"><?php echo $description; ?></option>
-									<?php
-										}
-									?>
-									<option></option>
-								</select>
+							<td valign="top" nowrap>Down Payment <?php echo $xyz; ?></td>
+							<td valign="top">:</td>
+							<td valign="top" nowrap>
+								<table>
+									<tr>
+										<td>Date</td>
+										<td>
+											<input id="dpdate" type="text" name="dpdate" value="<?php echo $dpdate; ?>" size="12">
+											<img src="images/calendar.png" title="Calendar" border="0" width="13" height="13" onclick="showCalendar('dpdate')">
+										</td>
+									</tr>
+									<tr>
+										<td>Tipe Payment</td>
+										<td>								
+											<select name="dptype<?php echo $_noxx; ?>" id="dptype<?php echo $_noxx; ?>">
+												<option value="">-tipe payment-</option>
+												<?php 
+													$sql="SELECT kode,description FROM mst_pay_type ORDER BY description";
+													$hsltemp=mysql_query($sql,$db);
+													while(list($_kode,$_desc)=mysql_fetch_array($hsltemp)){
+												?>
+													<option value="<?php echo $_kode; ?>"><?php echo $_desc; ?></option>
+												<?php
+													}
+												?>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td>Nominal</td>
+										<td>
+											Rp.<input id="dp<?php echo $_noxx; ?>" type="text" name="dp<?php echo $_noxx; ?>" size="20" style="text-align:right;">
+										</td>
+									</tr>
+									<tr>
+										<td>Bank</td>
+										<td>
+											<select name="dpbank<?php echo $_noxx; ?>" id="dpbank<?php echo $_noxx; ?>">
+												<option value="">-Pilih Bank-</option>
+												<?php
+													$sql="SELECT coa,description FROM acc_mst_coa WHERE koder='AKTIVA LANCAR' AND description LIKE '%bank%' ORDER BY description";
+													$hsltemp=mysql_query($sql,$db);
+													while(list($_kode,$description)=mysql_fetch_array($hsltemp)){
+												?>
+													<option value="<?php echo $_kode; ?>"><?php echo $description; ?></option>
+												<?php
+													}
+												?>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td>Reference Number</td>
+										<td>
+											<input type="text" id="refno<?=$_noxx;?>" name="refno<?=$_noxx;?>" placeholder="Reference Number">
+										</td>
+									</tr>
+								</table>
 							</td>
 						</tr>
-						<?php
-							for($xyz=2;$xyz<6;$xyz++){
-								$_noxx="";
-								if($xyz>0){$_noxx=$xyz;}
-						?>
-						<tr>
-							<td nowrap>Down Payment <?php echo $xyz; ?></td>
-							<td>:</td>
-							<td nowrap>
-								<select name="dptype<?php echo $_noxx; ?>" id="dptype<?php echo $_noxx; ?>">
-									<option value="">-tipe payment-</option>
-									<?php 
-										$sql="SELECT kode,description FROM mst_pay_type ORDER BY description";
-										$hsltemp=mysql_query($sql,$db);
-										while(list($_kode,$_desc)=mysql_fetch_array($hsltemp)){
-									?>
-										<option value="<?php echo $_kode; ?>"><?php echo $_desc; ?></option>
-									<?php
-										}
-									?>
-								</select>
-								Rp.<input id="dp<?php echo $_noxx; ?>" type="text" name="dp<?php echo $_noxx; ?>" size="20" style="text-align:right;">
-								<select name="dpbank<?php echo $_noxx; ?>" id="dpbank<?php echo $_noxx; ?>">
-									<option value="">-Pilih Bank-</option>
-									<?php
-										$sql="SELECT coa,description FROM acc_mst_coa WHERE koder='AKTIVA LANCAR' AND description LIKE '%bank%' ORDER BY description";
-										$hsltemp=mysql_query($sql,$db);
-										while(list($_kode,$description)=mysql_fetch_array($hsltemp)){
-									?>
-										<option value="<?php echo $_kode; ?>"><?php echo $description; ?></option>
-									<?php
-										}
-									?>
-									<option></option>
-								</select>
-							</td>
-						</tr>
-						<?php } ?>
 						<tr>
 							<td>Person</td>
 							<td>:</td>
@@ -461,12 +485,21 @@
 		<input type="hidden" id="modebutton"  name="modebutton" value="reload">
 		<input type="submit" id="formsubmit" style="visibility:hidden;">
 	</form>	
+	<script>
+		function showingSimpanCheckin(){
+			if(document.getElementById("arrival").value == "<?=date("Y-m-d");?>"){
+				document.getElementById("simpanCheckin").style.visibility = "visible";
+			} else {
+				document.getElementById("simpanCheckin").style.visibility = "hidden";
+			}
+		}
+	</script>
 	<table width="100%">
 		<tr>
 			<td align="center">
 				<input type="button" value="Kembali" onclick="window.location='<?php echo $tablename."list.php";?>';">
-				<input type="button" value="Simpan" onclick="modebutton.value='simpan';formsubmit.click();">
-				<input type="button" value="Simpan dan Checkin" onclick="modebutton.value='simpandancheckin';formsubmit.click();">
+				<input type="button" value="Simpan" onclick="modebutton.value='simpan';formsubmit.click();" onmousemove="showingSimpanCheckin();">
+				<input type="button" id="simpanCheckin" style="visibility:hidden;" value="Simpan dan Checkin" onmousemove="showingSimpanCheckin();" onclick="modebutton.value='simpandancheckin';formsubmit.click();">
 				<input type="button" value="Reset" onclick="modebutton.value='reset';formsubmit.click();">
 			</td>
 		</tr>
@@ -484,6 +517,10 @@
 		?><script language="javascript">document.getElementById("<?php echo $kodename; ?>").value="<?php echo $kode; ?>";</script><?php
 		?><script language="javascript">document.getElementById("idseqno").value="<?php echo $idseqno; ?>";</script><?php
 		?><script language="javascript">document.getElementById("tanggal").value="<?php echo $tanggal; ?>";</script><?php
+		?><script language="javascript">document.getElementById("dpdate").value="<?php echo $tanggal; ?>";</script><?php
+		if($_GET["arrivalDate"]){
+			?><script language="javascript">document.getElementById("arrival").value="<?php echo $_GET["arrivalDate"]; ?>";</script><?php
+		}
 	}else{//load editing
 		$kode=$_GET["kode"];
 		$sql="SHOW COLUMNS FROM $tablename WHERE field<>'xtimestamp' AND field<>'id'";

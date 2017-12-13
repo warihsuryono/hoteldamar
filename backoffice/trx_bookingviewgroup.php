@@ -61,12 +61,12 @@ $trx_booking_view->Page_Main();
 				$sql="SELECT coa FROM acc_setting_coa WHERE id='1'";
 				$hsltemp=mysql_query($sql,$db);
 				list($coa)=mysql_fetch_array($hsltemp);
-				$keterangan="DP Booking Group Kas ($arrival/$departure) an. $namacust";
+				$keterangan="DP Group Reservation Kas ($arrival/$departure) an. $namacust";
 				add_mutasi_uang($tanggal,"kas",$coa,"",basename($__phpself),$kode,"","",$keterangan,$totalcash,0);
 			}			
 			foreach($arrnoncash as $coabank => $__debitbank){
 				if($__debitbank!=0){
-					$keterangan="DP Booking Group Bank ($arrival/$departure) an. $namacust";
+					$keterangan="DP Group Reservation Bank ($arrival/$departure) an. $namacust";
 					add_mutasi_uang($tanggal,"Bank",$coabank,"",basename($__phpself),$kode,"","",$keterangan,$__debitbank,0);
 				}
 			}
@@ -138,7 +138,7 @@ trx_booking_view.ValidateRequired = false; // no JavaScript validation
 	}
 </script>
 <?php } ?>
-<p><span class="phpmaker"><h3><b>Booking Group</b></h3>
+<p><span class="phpmaker"><h3><b>Group Reservation</b></h3>
 <br><br>
 <?php if ($trx_booking->Export == "") { ?>
 <a href="trx_bookinglist.php">Back to List</a>&nbsp;

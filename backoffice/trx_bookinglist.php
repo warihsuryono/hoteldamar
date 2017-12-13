@@ -123,7 +123,7 @@ var ew_DHTMLEditors = [];
 	if ($bSelectLimit)
 		$rs = $trx_booking_list->LoadRecordset($trx_booking_list->lStartRec-1, $trx_booking_list->lDisplayRecs);
 ?>
-<p><span class="phpmaker" style="white-space: nowrap;"><h3><b>Booking Room</b></h3>
+<p><span class="phpmaker" style="white-space: nowrap;"><h3><b>Reservation</b></h3>
 <?php if ($trx_booking->Export == "" && $trx_booking->CurrentAction == "") { ?>
 &nbsp;&nbsp;<a href="<?php echo $trx_booking_list->PageUrl() ?>export=print"><img src="images/b_print.png" title="Printer Friendly" width="16" height="16" border="0"></a>
 &nbsp;&nbsp;<a href="<?php echo $trx_booking_list->PageUrl() ?>export=excel"><img src="images/exportxls.gif" title="Export to Excel" width="16" height="16" border="0"></a>
@@ -492,8 +492,8 @@ if (is_array($arwrk)) {
 </form>
 <?php } ?>
 <span class="phpmaker">
-<input type="button" name="AddBook" value="Booking Room" onclick="window.location='trx_bookingadd.php';">
-<input type="button" name="AddGroup" value="Booking Group" onclick="window.location='trx_bookingaddgroup.php';">
+<input type="button" name="AddBook" value="Reservation" onclick="window.location='trx_bookingadd.php';">
+<input type="button" name="AddGroup" value="Group Reservation" onclick="window.location='trx_bookingaddgroup.php';">
 </span>
 </div>
 <?php } ?>

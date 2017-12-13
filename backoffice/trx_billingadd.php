@@ -28,11 +28,11 @@
 						</td>
 					</tr>
 					<tr>
-						<td><b>Kode Booking<b></td>
+						<td><b>Reservation Code<b></td>
 						<td><b>:<b></td>
 						<td>
 							<select name="booking" id="booking">
-								<option value="">-Kode booking-</option>
+								<option value="">-Reservation Code-</option>
 								<?php 
 									$sql="SELECT kode,departure,nama,room FROM trx_booking WHERE grup='0' AND room<>'' ORDER BY departure DESC,room LIMIT 200";
 									$hslbook=mysql_query($sql,$db);
@@ -52,61 +52,9 @@
 						<td><b>Nett</b></td>
 						<td><b>:</b></td>
 						<td nowrap>
-							<input type="checkbox" name="nett" id="nett" value="1" <?php if(isset($_POST["nett"])){echo "checked";} ?>>NETT
+							<input type="checkbox" name="nett" id="nett" checked onclick="return false;" value="1" <?php if(isset($_POST["nett"])){echo "checked";} ?>>NETT
 						</td>
 					<tr>			
-					<!--tr>
-						<td><b>PPN & Service</b></td>
-						<td><b>:</b></td>
-						<td>
-							<input type="checkbox" name="withppn" id="withppn" value="1" <?php if(isset($_POST["withppn"])){echo "checked";} ?>>With PPN
-							<input type="checkbox" name="withservice" id="withservice" value="1" <?php if(isset($_POST["withservice"])){echo "checked";} ?>>With Service
-						</td>
-					<tr-->
-					<!--
-					<tr>
-						<td><b>Payment Type<b></td>
-						<td><b>:<b></td>
-						<td>
-							<select name="payment" id="payment">
-								<option value="">-payment-</option>
-								<?php 
-									$sql="SELECT kode,description FROM mst_pay_type ORDER BY kode";
-									$hsltemp=mysql_query($sql,$db);
-									while(list($_kode,$_desc)=mysql_fetch_array($hsltemp)){
-								?>
-									<option value="<?php echo $_kode; ?>" <?php if($_POST["payment"]==$_kode){echo "selected";} ?>><?php echo $_desc; ?></option>
-								<?php
-									}
-								?>
-							</select>
-						</td>
-					</tr>	
-					<tr>
-						<td><b>Bank</b></td>
-						<td>:</b></td>
-						<td>
-							<select name="coabank" id="coabank">
-								<option value="">-Pilih Bank-</option>
-								<?php
-									$sql="SELECT coa,description FROM acc_mst_coa WHERE koder='AKTIVA LANCAR' AND description LIKE '%bank%' ORDER BY description";
-									$hsltemp=mysql_query($sql,$db);
-									while(list($_kode,$description)=mysql_fetch_array($hsltemp)){
-								?>
-									<option value="<?php echo $_kode; ?>" <?php if($_POST["payment"]==$_kode){echo "selected";} ?>><?php echo $description; ?></option>
-								<?php
-									}
-								?>
-								<option></option>
-							</select>
-						</td>
-					</tr>
-					<tr>
-						<td><b>No Card /  No Rek</b></td>
-						<td>:</b></td>
-						<td><input type="text" name="norek" id="norek" value="<?php echo $_POST["norek"]; ?>"></td>
-					</tr>
-					-->
 					<tr>
 						<td colspan="3"><input type="submit" name="calculate" value="Calculate Bill"></td>
 					</tr>
@@ -130,6 +78,10 @@
 			// if(isset($_POST["withservice"])){$_withservice="1";}
 			if(isset($_POST["nett"])){$_nett="1";$_withppn="0";$_withservice="0";}
 			$_periodetrx=substr($tanggal,0,8);
+			$sql="SELECT kode FROM trx_billing WHERE booking='$_booking'";$hsltemp = mysql_query($sql,$db);
+			list($kodebilling) = mysql_fetch_array($hsltemp);
+			$sql="DELETE FROM trx_billing_details WHERE kode='$kodebilling'";
+			mysql_query($sql,$db);
 			$sql="DELETE FROM trx_billing WHERE booking='$_booking'";
 			mysql_query($sql,$db);
 			//$sql="SELECT kode,grup,title,nama,idtype,idno,alamat,phone,email,company,departement,grup,dp,dp2,dp3,dp4,dp5,dptype,room,person,DATE(checkindate),departure,DATEDIFF('$tanggal',DATE(checkindate)),rate,extraperson,chargeextraperson,rate1,rate2,discname,disc,notes FROM trx_booking WHERE room='$_room' AND checkin='1' AND checkindate<='$tanggal' AND kode NOT IN (SELECT booking FROM trx_billing WHERE tanggal LIKE '".$_periodetrx."%') ORDER BY tanggal DESC LIMIT 1";
@@ -157,13 +109,8 @@
 			$sql="SELECT sum(grandtotal) FROM trx_restaurant_bill WHERE kodebooking='$kodebooking' AND (paid='0' OR paid='2')";
 			$hsltemp=mysql_query($sql,$db);
 			list($__totalrestaurant)=mysql_fetch_array($hsltemp);
-			//cari total rate
-			// $sql="SELECT price,price2 FROM mst_room WHERE kode='$kdroom'";
-			// $hsltemp=mysql_query($sql,$db);
-			// list($price,$price2)=mysql_fetch_array($hsltemp);
 			$price=$rate1;
 			$price2=$rate2;
-			//echo "<br>$price,$price2";
 			$totalrate=0;
 			$_tanggalxx=$arrival;
 			while($_tanggalxx!=$tanggal){
@@ -178,7 +125,6 @@
 				}else{
 					$totalrate+=$price2;
 				}
-				//echo "<br>$_tanggalxx ( $tipeday ) :$totalrate";
 				$_tanggalxx=date("Y-m-d",mktime(0,0,0,$_bln,$_tgl+1,$_thn));
 			}
 			$__ppn=0;
@@ -201,7 +147,6 @@
 			if($_withservice || true){$__service=$__subtotal3*0.11;}
 			$__totalroom=$__subtotal3+$__service;
 			$__grandtotal=($__totalroom+$__totalrestaurant+$__totaladditional)-$__dp;
-			//echo "$__grandtotal=($__totalroom+$__totalrestaurant+$__totaladditional)-$__dp;";
 			
 			
 			$sql="INSERT INTO trx_billing (kode,grup,idseqno,tanggal,booking,room,withppn,withservice,nett,rate,rate2,chargeextraperson,restaurant,additional,subtotal1,ppn,subtotal2,service,dp,discname,disc,grandtotal,paymenttype,coabank,norek,createby,createdate) VALUES ";
@@ -275,11 +220,6 @@
 									<td><b>:</b></td>
 									<td><?php echo $departement; ?></td>
 								</tr>
-								<!--tr>
-									<td><b>Group</b></td>
-									<td><b>:</b></td>
-									<td><?php echo $grup; ?></td>
-								</tr-->
 							</table>
 						<td>
 						<td valign="top" width="25%">
@@ -328,16 +268,6 @@
 									<td><b>:</b></td>
 									<td align="right"><?php echo number_format($__dp); ?></td>
 								</tr>
-								<!--tr>
-									<td nowrap><b>Restaurant</b></td>
-									<td><b>:</b></td>
-									<td align="right"><?php echo number_format($totalrestaurant); ?></td>
-								</tr>
-								<tr>
-									<td nowrap><b>Additional</b></td>
-									<td><b>:</b></td>
-									<td align="right"><?php echo number_format($totaladditional); ?></td>
-								</tr-->
 								<tr>
 									<td nowrap><b>Notes</b></td>
 									<td><b>:</b></td>
@@ -577,6 +507,12 @@
 			<?php
 		}
 	?>
+	<?php if($_GET["booking_kode"] != ""){ ?>
+	<script> 
+		document.getElementById("booking").value = "<?=$_GET["booking_kode"];?>"; 
+		document.getElementById("tanggal").value = "<?=$_GET["checkoutDate"];?>"; 
+	</script>
+	<?php } ?>
 <?php
 	include_once "footer.php";
 ?>

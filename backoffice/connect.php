@@ -99,6 +99,11 @@
 		$temp=date("F Y",mktime(0,0,0,substr($tanggal,5,2),substr($tanggal,8,2),substr($tanggal,0,4)));
 		return $temp;
 	}
+	function format_tanggal3($tanggal){
+		//$temp=substr($tanggal,8,2)."-".substr($tanggal,5,2)."-".substr($tanggal,0,4);
+		$temp=date("d M Y",mktime(0,0,0,substr($tanggal,5,2),substr($tanggal,8,2),substr($tanggal,0,4)));
+		return $temp;
+	}
 	function realname($username){
 		global $db,$_SESSION;
 		$sql="SELECT nama FROM user_account WHERE username='$username'";

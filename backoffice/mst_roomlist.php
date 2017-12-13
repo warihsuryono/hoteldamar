@@ -29,7 +29,7 @@ $mst_room_list->Page_Main();
 <?php include "header.php" ?>
 <?php
 	if(isset($_POST["save_price"])){
-		$sql="UPDATE mst_room SET price='".$_POST["price"]."',price2='".$_POST["price2"]."' WHERE kode = '".$_POST["kode"]."'";
+		$sql="UPDATE mst_room SET price='".$_POST["price"]."',price2='".$_POST["price2"]."',status='".$_POST["status"]."' WHERE kode = '".$_POST["kode"]."'";
 		mysql_query($sql,$db);
 		echo "<font color='blue'>Data Saved!</font>";
 	}
@@ -401,6 +401,7 @@ foreach ($mst_room_list->ListOptions->Items as $ListOption) {
 <?php } ?>
 <td style="white-space: nowrap;">Week Days</td>	
 <td style="white-space: nowrap;">Week Ends</td>
+<td style="white-space: nowrap;">Status</td>
 <td style="white-space: nowrap;"></td>
 <?php if ($mst_room->tipe->Visible) { // tipe ?>
 	<?php if ($mst_room->SortUrl($mst_room->tipe) == "") { ?>
@@ -510,14 +511,20 @@ foreach ($mst_room_list->ListOptions->Items as $ListOption) {
 </td>
 	<?php } ?>
 	<?php
-		$sql = "SELECT price,price2 FROM mst_room WHERE kode = '".$mst_room->kode->ListViewValue()."'";
+		$sql = "SELECT price,price2,status FROM mst_room WHERE kode = '".$mst_room->kode->ListViewValue()."'";
 		$hsl = mysql_query($sql,$db);
-		list($price,$price2) = mysql_fetch_array($hsl);
+		list($price,$price2,$status) = mysql_fetch_array($hsl);
 	?>
 		<form method="post">
 			<input type="hidden" name="kode" value="<?=$mst_room->kode->ListViewValue();?>">
 			<td><input name="price" value="<?=$price;?>" style="width:50px;"></td>
 			<td><input name="price2" value="<?=$price2;?>" style="width:50px;"></td>
+			<td>
+				<select name="status">
+					<option value="0" <?=($status == "0")?"selected":"";?>>Out of Order</option>
+					<option value="1" <?=($status == "1")?"selected":"";?>>Available</option>
+				</select>
+			</td>
 			<td><input type="submit" name="save_price" value="Save"></td>
 		</form>
 	<?php if ($mst_room->tipe->Visible) { // tipe ?>

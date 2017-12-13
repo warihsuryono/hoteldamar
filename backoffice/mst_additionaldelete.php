@@ -71,7 +71,7 @@ if ($mst_additional_deletelTotalRecs <= 0) { // No record found, exit
 	$mst_additional_delete->Page_Terminate("mst_additionallist.php"); // Return to list
 }
 ?>
-<p><span class="phpmaker">Delete From <h3><b>Master Additional</b></h3><br><br>
+<p><span class="phpmaker">Delete From <h3><b>Master Miscellaneous</b></h3><br><br>
 <a href="<?php echo $mst_additional->getReturnUrl() ?>">Go Back</a></span></p>
 <?php $mst_additional_delete->ShowMessage() ?>
 <form action="<?php echo ew_CurrentPage() ?>" method="post">

@@ -157,7 +157,7 @@
 	</script>
 	<form method="POST" action="<?php echo $__phpself; ?>?editing=<?php echo $_GET["editing"];?>&kode=<?php echo $_GET["kode"]; ?>">
 		<input type="hidden" id="idseqno" name="idseqno">
-		<table width="100%"><tr><td align="center"><h3><b>ADDITIONAL</b></h3></td></tr></table>
+		<table width="100%"><tr><td align="center"><h3><b>MISCELLANEOUS</b></h3></td></tr></table>
 		<table>
 			<tr>
 				<td>Kode</td>
@@ -194,9 +194,9 @@
 				<td>PPN & Service</td>
 				<td>:</td>
 				<td nowrap>
-					<input type="checkbox" name="withppn" id="withppn" value="ss" <?php if(isset($_POST["withppn"])){echo "checked";} ?> onchange="if(this.checked==true){nett.checked=false;}">With PPN
-					<input type="checkbox" name="withservice" id="withservice" value="1" <?php if(isset($_POST["withservice"])){echo "checked";} ?> onchange="if(this.checked==true){nett.checked=false;}">With Service
-					<input type="checkbox" name="nett" id="nettid" value="1" <?php if(isset($_POST["nett"])){echo "checked";} ?> onchange="if(this.checked==true){withppn.checked=false;withservice.checked=false;}">NETT
+					<!--input type="checkbox" name="withppn" id="withppn" value="ss" <?php if(isset($_POST["withppn"])){echo "checked";} ?> onchange="if(this.checked==true){nett.checked=false;}">With PPN
+					<input type="checkbox" name="withservice" id="withservice" value="1" <?php if(isset($_POST["withservice"])){echo "checked";} ?> onchange="if(this.checked==true){nett.checked=false;}">With Service-->
+					<input type="checkbox" name="nett" id="nettid" value="1" checked onclick="return false;" onchange="if(this.checked==true){withppn.checked=false;withservice.checked=false;}">NETT
 				</td>
 			<tr>
 			<tr>
@@ -227,6 +227,11 @@
 				<td>:</td>
 				<td><textarea name="notes" id="notes" cols="50" rows="2"></textarea></td>
 			</tr>
+			<tr>
+				<td>Reference No</td>
+				<td>:</td>
+				<td><input type="text" size="10" name="refno" id="refno"> </td>
+			</tr>
 		</table>
 		<table class="content_table" width="100%" id="tabledetail">
 			<tr class="content_header" id="rowdetail_header">
@@ -235,7 +240,7 @@
 					<a onclick="addrow('0','tabledetail','rowdetail','+');"><img src="images/expand.gif" title="Tambah Baris" border="0"></a>
 					<a onclick="addrow('0','tabledetail','rowdetail','-');"><img src="images/collapse.gif" title="Kurangi Baris" border="0"></a>
 				</td>
-				<td><b>Kode Additional</b></td>
+				<td><b>Kode Miscellaneous</b></td>
 				<td><b>Description</b></td>
 				<td><b>Qty</b></td>
 				<td><b>Price</b></td>
@@ -245,7 +250,7 @@
 				<td align="right"><a onclick="addrow('0','tabledetail','rowdetail','[0]');"><img src="images/collapse.gif" title="Delete" border="0"></a>  1 </td>
 				<td>
 					<input id="kode_add[0]" type="text" name="kode_add[0]" size="20">
-					<img src="images/b_search.png" title="Daftar Kode Additional" border="0" width="13" height="13"  onclick="showAdditional('kode_add[0]')">
+					<img src="images/b_search.png" title="Daftar Kode Miscellaneous" border="0" width="13" height="13"  onclick="showAdditional('kode_add[0]')">
 				</td>
 				<td><input id="namaadditional[0]" type="text" name="namaadditional[0]" size="30" readonly></td>
 				<td><input id="qty[0]" type="text" name="qty[0]" size="5" style="text-align:right;" ></td>

@@ -21,7 +21,7 @@
 	$datavalid=true;
 	$errormessage="";
 	if($modebutton=="simpan"){
-		if(!$tanggal){$errormessage="Isi Tanggal Booking!";$datavalid=false;}
+		if(!$tanggal){$errormessage="Isi Reservation Date!";$datavalid=false;}
 		if(!$title){$errormessage="Pilih Title!";$datavalid=false;}
 		if(!$nama){$errormessage="Isi Nama!";$datavalid=false;}
 		if(!$arrival){$errormessage="Isi Tanggal Arrival!";$datavalid=false;}
@@ -251,7 +251,7 @@
 	</script>
 	<form method="POST" action="<?php echo $__phpself; ?>?editing=<?php echo $_GET["editing"];?>&kode=<?php echo $_GET["kode"]; ?>">
 		<input type="hidden" id="idseqno" name="idseqno">
-		<table width="100%"><tr><td align="center"><h3><b>BOOKING GROUP</b></h3></td></tr></table>
+		<table width="100%"><tr><td align="center"><h3><b>GROUP RESERVATION</b></h3></td></tr></table>
 		<fieldset>
 			<legend>Booking Info</legend>
 		<table>
@@ -264,12 +264,12 @@
 							<td><input type="text" id="grup" name="grup" readonly size="30"></td>
 						</tr>
 						<tr>
-							<td>Kode Booking</td>
+							<td>Reservation Code</td>
 							<td>:</td>
 							<td><input type="text" id="kode" name="kode" readonly size="30"></td>
 						</tr>
 						<tr>
-							<td nowrap>Tanggal Booking</td>
+							<td nowrap>Reservation Date</td>
 							<td>:</td>
 							<td>
 								<input id="tanggal" type="text" name="tanggal" value="<?php echo $tanggal; ?>" size="12">

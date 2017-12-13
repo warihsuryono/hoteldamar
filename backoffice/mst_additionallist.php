@@ -129,7 +129,7 @@ var ew_DHTMLEditors = [];
 	if ($bSelectLimit)
 		$rs = $mst_additional_list->LoadRecordset($mst_additional_list->lStartRec-1, $mst_additional_list->lDisplayRecs);
 ?>
-<p><span class="phpmaker" style="white-space: nowrap;"><h3><b>Master Additional</b></h3>
+<p><span class="phpmaker" style="white-space: nowrap;"><h3><b>Master Miscellaneous</b></h3>
 <?php if ($mst_additional->Export == "" && $mst_additional->CurrentAction == "") { ?>
 &nbsp;&nbsp;<a href="<?php echo $mst_additional_list->PageUrl() ?>export=print"><img src="images/b_print.png" title="Printer Friendly" width="16" height="16" border="0"></a>
 &nbsp;&nbsp;<a href="<?php echo $mst_additional_list->PageUrl() ?>export=excel"><img src="images/exportxls.gif" title="Export to Excel" width="16" height="16" border="0"></a>
