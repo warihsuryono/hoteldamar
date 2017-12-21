@@ -35,3 +35,4 @@ ALTER TABLE `trx_billing_details` ADD PRIMARY KEY (`id`), ADD KEY `kode` (`kode`
 ALTER TABLE `trx_billing_details` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 ALTER TABLE `mst_room` ADD `status` SMALLINT NOT NULL DEFAULT '1' AFTER `connecting2`, ADD INDEX (`status`);
+ALTER TABLE `trx_billing` ADD `latecheckoutFee` DOUBLE NOT NULL AFTER `service`;

@@ -36,7 +36,7 @@
 		
 		if($datavalid){//tidak ada masalah dengan tanggal arrival dan departure
 			$roomavailable=funccekroomavailable($_GET["kode"],$room,$arrival,$departure);
-			if(!$roomavailable){$errormessage="Kamar sudah dipesan! Batalkan Reservation sebelumnya jika tetap ingin di Simpan!";$datavalid=false;}
+			if(!$roomavailable){$errormessage="Kamar sudah dipesan! Batalkan Reservation sebelumnya atau Selesaikan Payment Reservation sebelumnya jika tetap ingin di Simpan!";$datavalid=false;}
 		}
 		
 		if(!$room){$errormessage="Isi Room!";$datavalid=false;}

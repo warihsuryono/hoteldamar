@@ -493,7 +493,7 @@ if (is_array($arwrk)) {
 <?php } ?>
 <span class="phpmaker">
 <input type="button" name="AddBook" value="Reservation" onclick="window.location='trx_bookingadd.php';">
-<input type="button" name="AddGroup" value="Group Reservation" onclick="window.location='trx_bookingaddgroup.php';">
+<!--input type="button" name="AddGroup" value="Group Reservation" onclick="window.location='trx_bookingaddgroup.php';"-->
 </span>
 </div>
 <?php } ?>

@@ -31,6 +31,7 @@ var EW_BUTTON_CANCEL_TEXT = "  Cancel  ";
 </script>
 <script type="text/javascript" src="js/ewp6.js"></script>
 <script type="text/javascript" src="js/userfn6.js"></script>
+<script type="text/javascript" src="js/jquery-1.10.1.min.js"></script>
 <script language="JavaScript" type="text/javascript">
 <!--
 

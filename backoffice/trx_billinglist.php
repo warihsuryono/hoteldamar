@@ -331,7 +331,7 @@ if (is_array($trx_billing->paid->EditValue)) {
 <span class="phpmaker">
 <!--a href="<?php echo $trx_billing->AddUrl() ?>"> <img src="images/expand.gif" title="Add" width="16" height="16" border="0"> </a>&nbsp;&nbsp;-->
 <input type="button" name="AddBook" value="Billing Room" onclick="window.location='trx_billingadd.php';">
-<input type="button" name="AddGroup" value="Billing Group" onclick="window.location='trx_billingaddgroup.php';">
+<!--input type="button" name="AddGroup" value="Billing Group" onclick="window.location='trx_billingaddgroup.php';"-->
 </span>
 </div>
 <?php } ?>
@@ -540,7 +540,7 @@ while (($trx_billing->CurrentAction == "gridadd" || !$rs->EOF) &&
 	<tr<?php echo $trx_billing->RowAttributes() ?>>
 <?php if ($trx_billing->Export == "") { ?>
 <td style="white-space: nowrap;"><span class="phpmaker">
-<?php if($trx_billing->grup->ListViewValue()!="0") { ?>
+<?php if($trx_billing->grup->ListViewValue()!="0" && false) { ?>
 <a href="trx_billingviewgroup.php?kode=<?php echo $trx_billing->kode->ListViewValue(); ?>"><img src="images/view.gif" title="Detail" width="16" height="16" border="0"></a>
 <?php } else { ?>
 <a href="<?php echo $trx_billing->ViewUrl() ?>"><img src="images/view.gif" title="Detail" width="16" height="16" border="0"></a>
