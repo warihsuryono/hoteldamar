@@ -35,11 +35,13 @@
 		if($lamainap<=0){$errormessage="Tanggal Arrival dan atau departure Salah!";$datavalid=false;}		
 		
 		if($datavalid){//tidak ada masalah dengan tanggal arrival dan departure
-			$roomavailable=funccekroomavailable($_GET["kode"],$room,$arrival,$departure);
-			if(!$roomavailable){$errormessage="Kamar sudah dipesan! Batalkan Reservation sebelumnya atau Selesaikan Payment Reservation sebelumnya jika tetap ingin di Simpan!";$datavalid=false;}
+			foreach($_POST["rooms"] as $room => $val){
+				$roomavailable=funccekroomavailable($_GET["kode"],$room,$arrival,$departure);
+				if(!$roomavailable){$errormessage="Kamar sudah dipesan! Batalkan Reservation sebelumnya atau Selesaikan Payment Reservation sebelumnya jika tetap ingin di Simpan!";$datavalid=false;}
+			}
 		}
 		
-		if(!$room){$errormessage="Isi Room!";$datavalid=false;}
+		if(count($_POST["rooms"]) <= 0){$errormessage="Pilih Room!";$datavalid=false;}
 		if(!$rate1){$errormessage="Isi Rate Week Days!";$datavalid=false;}
 		if(!$rate2){$errormessage="Isi Rate Week End!";$datavalid=false;}
 		if(!$refno && $dp > 0){$errormessage="Isi Reference Number!";$datavalid=false;}
@@ -54,75 +56,119 @@
 	}
 	
 	if(($modebutton=="simpan" || $modebutton=="simpandancheckin") && $datavalid){
+		$kode=$_GET["kode"];
 		if($_GET["editing"]){
-			$kode=$_GET["kode"];
-			$sql="DELETE FROM $tablename WHERE $kodename='$kode'";
-			mysql_query($sql,$db);
-			$sql="DELETE FROM $tabledetailname WHERE $kodename='$kode'";
-			mysql_query($sql,$db);
-		} else {
-			$tanggal=date("Y-m-d");
-			$kode="BOOK/".date("Ymd")."/";
-			$sql="SELECT idseqno FROM $tablename WHERE $kodename LIKE '$kode%' ORDER BY idseqno DESC LIMIT 1";
-			$hsltemp=mysql_query($sql,$db);
-			list($idseqno)=mysql_fetch_array($hsltemp);
-			$idseqno++;
-			$kode.=substr("000",0,3-strlen($idseqno)).$idseqno;
-			$periode=date("Y-m-01");
-			$_POST["idseqno"] = $idseqno;
-			$_POST["kode"] = $kode;
-		}
-		$sql="SHOW COLUMNS FROM $tablename WHERE field<>'xtimestamp' AND field<>'id'";
-		$hsltemp=mysql_query($sql,$db);
-		$into="(";
-		$values="(";
-		$createby=$__username;
-		$createdate=$__now;
-		$detailfile=$tabledetailname.".php?kode=$kode";
-		$actionlink="<a href=''$__phpself?editing=1&kode=$kode''><img src=''images/inlineedit.gif'' title=''Inline Edit'' width=''16'' height=''16'' border=''0''></a>";
-		$actionlink.="&nbsp;&nbsp;<a href=''$detailfile''><img src=''images/view.gif'' title=''Detail'' width=''16'' height=''16'' border=''0''></a>";
-		while(list($fieldname,$fieldtype)=mysql_fetch_array($hsltemp)){
-			$into.="`$fieldname`,";
-			if($fieldtype=="double"){
-				eval("\$values .= \"'\".unformated(\$$fieldname).\"',\";");
-			}else{
-				eval("\$values .= \"'\".\$$fieldname.\"',\";");
-			}
-		}
-		$into=substr($into,0,strlen($into)-1).")";
-		$values=substr($values,0,strlen($values)-1).")";
-		$sql="INSERT INTO $tablename $into VALUES $values";
-		mysql_query($sql,$db);
-		//echo "<br>$sql => ".mysql_error();
-		//INSERT DETAIL
-		eval("\$countrow = count($$kodedetailname);");
-		$seqno=-1;
-		for($_seqno=0;$_seqno<$countrow;$_seqno++){
-			eval("\$isvalue = $$kodedetailname"."[".$_seqno."]".";");
-			if($isvalue){//ada isinya
-				$seqno++;
-				$sql="SHOW COLUMNS FROM $tabledetailname WHERE field<>'xtimestamp'";
-				$hsltemp=mysql_query($sql,$db);
-				$intodetail="(";
-				$valuesdetail="(";
-				while(list($fielddetailname,$fielddetailtype)=mysql_fetch_array($hsltemp)){
-					$intodetail.="`$fielddetailname`,";
-					if($fielddetailtype=="double"){
-						eval("if(is_array(\$$fielddetailname)){\$valuesdetail .= \"'\".unformated(\$$fielddetailname"."[".$_seqno."]".").\"',\";}else{\$valuesdetail .= \"'\".unformated(\$$fielddetailname).\"',\";}");
-					}else{
-						eval("if(is_array(\$$fielddetailname)){\$valuesdetail .= \"'\".\$$fielddetailname"."[".$_seqno."]".".\"',\";}else{\$valuesdetail .= \"'\".\$$fielddetailname.\"',\";}");
-					}
+			$sql="SELECT grup FROM trx_booking WHERE kode='$kode'";
+			$hsl = mysql_query($sql,$db);
+			list($grup) = mysql_fetch_array($hsl);
+			if(!$grup){
+				$kodes[0] = $kode;
+			} else {
+				$sql = "SELECT kode FROM trx_booking WHERE grup = '$grup' ORDER BY kode";
+				$hsl = mysql_query($sql,$db);
+				while(list($kodeBooking) = mysql_fetch_array($hsl)){
+					$kodes[] = $kodeBooking;
 				}
-				$intodetail=substr($intodetail,0,strlen($intodetail)-1).")";
-				$valuesdetail=substr($valuesdetail,0,strlen($valuesdetail)-1).")";
-				$sql="INSERT INTO $tabledetailname $intodetail VALUES $valuesdetail";
+			}
+			foreach($kodes as $delkode){
+				$sql="DELETE FROM $tablename WHERE $kodename='$delkode'";
 				mysql_query($sql,$db);
-				//echo "<br>$sql => ".mysql_error();
+				$sql="DELETE FROM $tabledetailname WHERE $kodename='$delkode'";
+				mysql_query($sql,$db);
 			}
 		}
-		if($modebutton=="simpandancheckin"){
-			$sql="UPDATE trx_booking SET confirmasi='1',confirmby='".$_SESSION["username"]."',confirmdate=NOW(),checkin='1',checkinby='".$_SESSION["username"]."',checkindate=NOW() WHERE kode='$kode'";
+		$room_i = 0;
+		foreach($_POST["rooms"] as $room => $val){
+			$room_i++;
+			$tanggal=date("Y-m-d");
+			if(!$_GET["editing"]){
+				$kode="BOOK/".date("Ymd")."/";
+				$sql="SELECT idseqno FROM $tablename WHERE $kodename LIKE '$kode%' ORDER BY idseqno DESC LIMIT 1";
+				$hsltemp=mysql_query($sql,$db);
+				list($idseqno)=mysql_fetch_array($hsltemp);
+				$idseqno++;
+				$kode.=substr("000",0,3-strlen($idseqno)).$idseqno;
+				$periode=date("Y-m-01");
+				$_POST["idseqno"] = $idseqno;
+				$_POST["kode"] = $kode;
+				if(count($_POST["rooms"]) > 1){
+					if($room_i == 1) $_POST["grup"] = $kode;
+				} else {
+					$_POST["grup"] = 0;
+				}
+				$grup = $_POST["grup"];
+			}else{
+				$_POST["grup"] = $kodes[0];
+				$grup = $_POST["grup"];
+				if($kodes[$room_i-1]){
+					$kode = $kodes[$room_i-1];
+					$_POST["kode"] = $kode;
+					$idseqno = substr($kode,-3);
+					$_POST["idseqno"] = $idseqno;
+				} else {
+					$kode="BOOK/".date("Ymd")."/";
+					$sql="SELECT idseqno FROM $tablename WHERE $kodename LIKE '$kode%' ORDER BY idseqno DESC LIMIT 1";
+					$hsltemp=mysql_query($sql,$db);
+					list($idseqno)=mysql_fetch_array($hsltemp);
+					$idseqno++;
+					$kode.=substr("000",0,3-strlen($idseqno)).$idseqno;
+					$_POST["idseqno"] = $idseqno;
+					$_POST["kode"] = $kode;
+				}
+			}
+			if($room_i > 1){ $dp = "";	$dptype = "";	$dpbank = "";	$dpdate = "";	$refno = ""; }
+			$sql="SHOW COLUMNS FROM $tablename WHERE field<>'xtimestamp' AND field<>'id'";
+			$hsltemp=mysql_query($sql,$db);
+			$into="(";
+			$values="(";
+			$createby=$__username;
+			$createdate=$__now;
+			$detailfile=$tabledetailname.".php?kode=$kode";
+			$actionlink="<a href=''$__phpself?editing=1&kode=$kode''><img src=''images/inlineedit.gif'' title=''Inline Edit'' width=''16'' height=''16'' border=''0''></a>";
+			$actionlink.="&nbsp;&nbsp;<a href=''$detailfile''><img src=''images/view.gif'' title=''Detail'' width=''16'' height=''16'' border=''0''></a>";
+			while(list($fieldname,$fieldtype)=mysql_fetch_array($hsltemp)){
+				$into.="`$fieldname`,";
+				if($fieldtype=="double"){
+					eval("\$values .= \"'\".unformated(\$$fieldname).\"',\";");
+				}else{
+					eval("\$values .= \"'\".\$$fieldname.\"',\";");
+				}
+			}
+			$into=substr($into,0,strlen($into)-1).")";
+			$values=substr($values,0,strlen($values)-1).")";
+			$sql="INSERT INTO $tablename $into VALUES $values";
 			mysql_query($sql,$db);
+			// echo "<br>$sql => ".mysql_error();
+			//INSERT DETAIL
+			eval("\$countrow = count($$kodedetailname);");
+			$seqno=-1;
+			for($_seqno=0;$_seqno<$countrow;$_seqno++){
+				eval("\$isvalue = $$kodedetailname"."[".$_seqno."]".";");
+				if($isvalue){//ada isinya
+					$seqno++;
+					$sql="SHOW COLUMNS FROM $tabledetailname WHERE field<>'xtimestamp'";
+					$hsltemp=mysql_query($sql,$db);
+					$intodetail="(";
+					$valuesdetail="(";
+					while(list($fielddetailname,$fielddetailtype)=mysql_fetch_array($hsltemp)){
+						$intodetail.="`$fielddetailname`,";
+						if($fielddetailtype=="double"){
+							eval("if(is_array(\$$fielddetailname)){\$valuesdetail .= \"'\".unformated(\$$fielddetailname"."[".$_seqno."]".").\"',\";}else{\$valuesdetail .= \"'\".unformated(\$$fielddetailname).\"',\";}");
+						}else{
+							eval("if(is_array(\$$fielddetailname)){\$valuesdetail .= \"'\".\$$fielddetailname"."[".$_seqno."]".".\"',\";}else{\$valuesdetail .= \"'\".\$$fielddetailname.\"',\";}");
+						}
+					}
+					$intodetail=substr($intodetail,0,strlen($intodetail)-1).")";
+					$valuesdetail=substr($valuesdetail,0,strlen($valuesdetail)-1).")";
+					$sql="INSERT INTO $tabledetailname $intodetail VALUES $valuesdetail";
+					mysql_query($sql,$db);
+					// echo "<br>$sql => ".mysql_error();
+				}
+			}
+			if($modebutton=="simpandancheckin"){
+				$sql="UPDATE trx_booking SET confirmasi='1',confirmby='".$_SESSION["username"]."',confirmdate=NOW(),checkin='1',checkinby='".$_SESSION["username"]."',checkindate=NOW() WHERE kode='$kode'";
+				mysql_query($sql,$db);
+			}
 		}
 		?>
 			<script language="javascript">
@@ -180,6 +226,7 @@
 	</script>
 	<form method="POST" action="<?php echo $__phpself; ?>?editing=<?php echo $_GET["editing"];?>&kode=<?php echo $_GET["kode"]; ?>">
 		<input type="hidden" id="idseqno" name="idseqno">
+		<input type="hidden" id="grup" name="grup">
 		<input type="hidden" id="dp2" name="dp2">
 		<input type="hidden" id="dptype2" name="dptype2">
 		<input type="hidden" id="dpbank2" name="dpbank2">
@@ -288,11 +335,24 @@
 							</td>
 						</tr>
 						<tr>
-							<td>Room</td>
-							<td>:</td>
-							<td>
-								<select name="room" id="room" onchange="loadrate(this.value);cekroomavailable();">
-								<!--select name="room" id="room" onchange="cekroomavailable();"-->
+							<td valign="top">Room</td>
+							<td valign="top">:</td>
+							<td><div id="numberOfRooms">0 Room</div><br>
+								<div id="reservationRooms" style="overflow:scroll; height:150px;width:150px;border:1px solid grey;">
+									<?php 
+										$sql="SELECT kode,nama FROM mst_room ORDER BY kode";
+										if($_GET["roomtype"]){
+											$sql="SELECT kode,nama FROM mst_room WHERE tipe='".$_GET["roomtype"]."' ORDER BY kode";
+										}
+										$hsltemp=mysql_query($sql,$db);
+										while(list($_kode,$_desc)=mysql_fetch_array($hsltemp)){
+									?>
+										<input onchange="loadNumberOfRooms();" type="checkbox" id="chkroom_<?=$_kode; ?>" name="rooms[<?=$_kode; ?>]" value="1" <?php if($_POST["rooms"][$_kode]){echo "checked";} ?>><?=$_desc; ?><br>
+									<?php
+										}
+									?>
+								</div>
+								<!--select name="room" id="room" onchange="loadrate(this.value);cekroomavailable();">
 									<option value="">-room-</option>
 									<?php 
 										$sql="SELECT kode,nama FROM mst_room ORDER BY kode";
@@ -306,7 +366,7 @@
 									<?php
 										}
 									?>
-								</select>
+								</select-->
 							</td>
 						</tr>
 						<tr>
@@ -363,7 +423,6 @@
 								<input id="grup" type="text" name="grup" size="40">
 							</td>
 						</tr-->
-						<input id="grup" type="hidden" name="grup" value="0">
 					</table>
 				</td>
 				<td valign="top">
@@ -493,6 +552,30 @@
 				document.getElementById("simpanCheckin").style.visibility = "hidden";
 			}
 		}
+		function loadNumberOfRooms(){
+			var numberOfRooms = 0;
+			<?php 
+				$sql="SELECT kode,nama FROM mst_room ORDER BY kode";
+				if($_GET["roomtype"]){
+					$sql="SELECT kode,nama FROM mst_room WHERE tipe='".$_GET["roomtype"]."' ORDER BY kode";
+				}
+				$hsltemp=mysql_query($sql,$db);
+				while(list($_kode,$_desc)=mysql_fetch_array($hsltemp)){
+					?> 
+						if(document.getElementById("chkroom_<?=$_kode; ?>").checked == true){
+							loadrate("<?=$_kode;?>");
+							numberOfRooms++; 
+						}
+					<?php
+				}
+			?>
+			if(numberOfRooms > 1){
+				document.getElementById("numberOfRooms").innerHTML = numberOfRooms+" Rooms";
+			} else if(numberOfRooms >= 0) {
+				document.getElementById("numberOfRooms").innerHTML = numberOfRooms+" Room";
+			}
+		}
+		loadNumberOfRooms();
 	</script>
 	<table width="100%">
 		<tr>
@@ -539,6 +622,23 @@
 			$value=str_ireplace(chr(13).chr(10)," ",$value);
 			?><script language="javascript">document.getElementById("<?php echo $varname; ?>").value="<?php echo $value; ?>";</script><?php
 		}
+		
+		$sql="SELECT grup,room FROM trx_booking WHERE kode='$kode'";
+		$hsl = mysql_query($sql,$db);
+		list($grup,$koderoom) = mysql_fetch_array($hsl);
+		if(!$grup){
+			$roomfocus = $koderoom;
+			?><script language="javascript">document.getElementById("chkroom_<?=$koderoom; ?>").checked=true;</script><?php
+		} else {
+			$sql = "SELECT kode,room FROM trx_booking WHERE grup = '$grup'";
+			$hsl = mysql_query($sql,$db);
+			while(list($kodeBooking,$koderoom) = mysql_fetch_array($hsl)){
+				$roomfocus = $koderoom;
+				?><script language="javascript">document.getElementById("chkroom_<?=$koderoom; ?>").checked=true;</script><?php
+			}
+		}
+		
+		?><script language="javascript">loadNumberOfRooms();</script><?php
 		?><script language="javascript">document.getElementById("<?php echo $kodename; ?>").value="<?php echo $kode; ?>";</script><?php
 	}
 	if($modebutton=="reload" || $modebutton=="simpan"){
@@ -556,5 +656,12 @@
 			}
 		}
 	}
+?>
+<?php if($_GET["editing"]){ ?>
+<script> 
+	$("#reservationRooms").animate({scrollTop : $("#chkroom_<?=$roomfocus; ?>").offset().top-250},800);
+</script>
+<?php } ?>
+<?php
 	include_once "footer.php";
 ?>

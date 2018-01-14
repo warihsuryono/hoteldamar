@@ -40,6 +40,24 @@ $trx_booking_view->Page_Main();
 	$hsltemp=mysql_query($sql,$db);
 	list($room,$rate1,$rate2)=mysql_fetch_array($hsltemp);
 	
+	$sql="SELECT grup FROM trx_booking WHERE kode='$kode'";
+	$hsl = mysql_query($sql,$db);
+	list($grup) = mysql_fetch_array($hsl);
+	if(!$grup){
+		$roomsList = $trx_booking->room->ViewValue;
+		$kodes[0] = $kode;
+	} else {
+		$sql = "SELECT kode,room FROM trx_booking WHERE grup = '$grup'";
+		$hsl = mysql_query($sql,$db);
+		while(list($kodeBooking,$koderoom) = mysql_fetch_array($hsl)){
+			$kodes[] = $kodeBooking;
+			$sql = "SELECT nama FROM mst_room WHERE kode = '$koderoom'";
+			$hsltemp = mysql_query($sql,$db);
+			list($roomName) = mysql_fetch_array($hsltemp);
+			$roomsList .= $roomName."<br>";
+		}
+	}
+	
 	
 	if($savedp){
 		$xx = $_POST["xx"];
@@ -56,55 +74,60 @@ $trx_booking_view->Page_Main();
 	
 	
 	if($updateconfirmasi){
-		if($value==1){
-			$sql="SELECT title,nama,room,arrival,departure,dp,dptype,dpbank,dp2,dptype2,dpbank2,dp3,dptype3,dpbank3,dp4,dptype4,dpbank4,dp5,dptype5,dpbank5 FROM trx_booking WHERE kode='$kode'";
-			$hsltemp=mysql_query($sql,$db);
-			list($title,$nama,$room,$arrival,$departure,$dp,$dptype,$dpbank,$dp2,$dptype2,$dpbank2,$dp3,$dptype3,$dpbank3,$dp4,$dptype4,$dpbank4,$dp5,$dptype5,$dpbank5)=mysql_fetch_array($hsltemp);
-			$sql="SELECT nama FROM mst_room WHERE kode='$room'";
-			$hsltemp=mysql_query($sql,$db);
-			list($room)=mysql_fetch_array($hsltemp);
-			$custtitle=$title;
-			$custnama=$nama;	
-			$namacust=$custtitle." ".$custnama;
-			$totalnoncash=0;
-			$totalcash=0;
-			$arrnoncash=array();
-			if($dptype!="01"){$totalnoncash+=$dp;$arrnoncash[$dpbank]+=$dp;}else{$totalcash+=$dp;}
-			if($dptype2!="01"){$totalnoncash+=$dp2;$arrnoncash[$dpbank2]+=$dp2;}else{$totalcash+=$dp;}
-			if($dptype3!="01"){$totalnoncash+=$dp3;$arrnoncash[$dpbank3]+=$dp3;}else{$totalcash+=$dp;}
-			if($dptype4!="01"){$totalnoncash+=$dp4;$arrnoncash[$dpbank4]+=$dp4;}else{$totalcash+=$dp;}
-			if($dptype5!="01"){$totalnoncash+=$dp5;$arrnoncash[$dpbank5]+=$dp5;}else{$totalcash+=$dp;}
-			if($totalcash>0){
-				$sql="SELECT coa FROM acc_setting_coa WHERE id='1'";
+		foreach($kodes as $kode){
+			if($value==1){
+				$sql="SELECT title,nama,room,arrival,departure,dp,dptype,dpbank,dp2,dptype2,dpbank2,dp3,dptype3,dpbank3,dp4,dptype4,dpbank4,dp5,dptype5,dpbank5 FROM trx_booking WHERE kode='$kode'";
 				$hsltemp=mysql_query($sql,$db);
-				list($coa)=mysql_fetch_array($hsltemp);
-				$keterangan="DP Reservation Kas[$room ($arrival/$departure)] an. $namacust";
-				add_mutasi_uang($tanggal,"kas",$coa,"",basename($__phpself),$kode,"","",$keterangan,$totalcash,0);
-			}			
-			foreach($arrnoncash as $coabank => $__debitbank){
-				if($__debitbank!=0){
-					$keterangan="DP Reservation Bank[$room ($arrival/$departure)] an. $namacust";
-					add_mutasi_uang($tanggal,"Bank",$coabank,"",basename($__phpself),$kode,"","",$keterangan,$__debitbank,0);
-				}
-			}			
-			$sql="UPDATE mst_room SET available='1' WHERE kode='$room'";
-		}else{
-			$sql="DELETE FROM trx_mutasi_uang WHERE kode_trx='$kode' AND modul='".basename($__phpself)."'";
-			mysql_query($sql,$db);			
-			$sql="UPDATE mst_room SET available='0' WHERE kode='$room'";
-		}
-		mysql_query($sql,$db);
-		$sql="UPDATE trx_booking SET confirmasi='$value',confirmby='".$_SESSION["username"]."',confirmdate='$tanggal' WHERE kode='$kode'";		
-		mysql_query($sql,$db);
-		if($value!="1"){
-			$sql="UPDATE trx_booking SET checkin='0' WHERE kode='$kode'";		
+				list($title,$nama,$room,$arrival,$departure,$dp,$dptype,$dpbank,$dp2,$dptype2,$dpbank2,$dp3,$dptype3,$dpbank3,$dp4,$dptype4,$dpbank4,$dp5,$dptype5,$dpbank5)=mysql_fetch_array($hsltemp);
+				$sql="SELECT nama FROM mst_room WHERE kode='$room'";
+				$hsltemp=mysql_query($sql,$db);
+				list($room)=mysql_fetch_array($hsltemp);
+				$custtitle=$title;
+				$custnama=$nama;	
+				$namacust=$custtitle." ".$custnama;
+				$totalnoncash=0;
+				$totalcash=0;
+				$arrnoncash=array();
+				if($dptype!="01"){$totalnoncash+=$dp;$arrnoncash[$dpbank]+=$dp;}else{$totalcash+=$dp;}
+				if($dptype2!="01"){$totalnoncash+=$dp2;$arrnoncash[$dpbank2]+=$dp2;}else{$totalcash+=$dp;}
+				if($dptype3!="01"){$totalnoncash+=$dp3;$arrnoncash[$dpbank3]+=$dp3;}else{$totalcash+=$dp;}
+				if($dptype4!="01"){$totalnoncash+=$dp4;$arrnoncash[$dpbank4]+=$dp4;}else{$totalcash+=$dp;}
+				if($dptype5!="01"){$totalnoncash+=$dp5;$arrnoncash[$dpbank5]+=$dp5;}else{$totalcash+=$dp;}
+				if($totalcash>0){
+					$sql="SELECT coa FROM acc_setting_coa WHERE id='1'";
+					$hsltemp=mysql_query($sql,$db);
+					list($coa)=mysql_fetch_array($hsltemp);
+					$keterangan="DP Reservation Kas[$room ($arrival/$departure)] an. $namacust";
+					add_mutasi_uang($tanggal,"kas",$coa,"",basename($__phpself),$kode,"","",$keterangan,$totalcash,0);
+				}			
+				foreach($arrnoncash as $coabank => $__debitbank){
+					if($__debitbank!=0){
+						$keterangan="DP Reservation Bank[$room ($arrival/$departure)] an. $namacust";
+						add_mutasi_uang($tanggal,"Bank",$coabank,"",basename($__phpself),$kode,"","",$keterangan,$__debitbank,0);
+					}
+				}			
+				$sql="UPDATE mst_room SET available='1' WHERE kode='$room'";
+			}else{
+				$sql="DELETE FROM trx_mutasi_uang WHERE kode_trx='$kode' AND modul='".basename($__phpself)."'";
+				mysql_query($sql,$db);			
+				$sql="UPDATE mst_room SET available='0' WHERE kode='$room'";
+			}
 			mysql_query($sql,$db);
+			$sql="UPDATE trx_booking SET confirmasi='$value',confirmby='".$_SESSION["username"]."',confirmdate='$tanggal' WHERE kode='$kode'";		
+			mysql_query($sql,$db);
+			if($value!="1"){
+				$sql="UPDATE trx_booking SET checkin='0' WHERE kode='$kode'";		
+				mysql_query($sql,$db);
+			}
 		}
 	}
 	if($updatecheckin){
-		$sql="UPDATE trx_booking SET checkin='$value',checkinby='".$_SESSION["username"]."',checkindate='$tanggal' WHERE kode='$kode'";		
-		mysql_query($sql,$db);
+		foreach($kodes as $kode){
+			$sql="UPDATE trx_booking SET checkin='$value',checkinby='".$_SESSION["username"]."',checkindate='$tanggal' WHERE kode='$kode'";		
+			mysql_query($sql,$db);
+		}
 	}
+	
 ?>
 <?php if ($trx_booking->Export == "") { ?>
 <script type="text/javascript">
@@ -357,9 +380,9 @@ trx_booking_view.ValidateRequired = false; // no JavaScript validation
 
 <?php if ($trx_booking->room->Visible) { // room ?>
 	<tr<?php echo $trx_booking->room->RowAttributes ?>>
-		<td class="ewTableHeader">Room</td>
+		<td class="ewTableHeader">Room(s)</td>
 		<td<?php echo $trx_booking->room->CellAttributes() ?>>
-<div<?php echo $trx_booking->room->ViewAttributes() ?>><?php echo $trx_booking->room->ViewValue ?></div></td>
+<div<?php echo $trx_booking->room->ViewAttributes() ?>><?php echo $roomsList ?></div></td>
 	</tr>
 <?php } ?>
 <?php if ($trx_booking->person->Visible) { // person ?>

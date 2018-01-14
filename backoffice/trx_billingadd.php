@@ -27,16 +27,30 @@
 						<td>
 							<div id="reservationCodes" style="overflow:scroll; height:400px;width:600px;border:1px solid grey;">
 								<table>
-								<?php 
-									$sql="SELECT kode,arrival,departure,nama,room FROM trx_booking WHERE grup='0' AND room<>'' AND kode NOT IN (SELECT booking FROM trx_billing WHERE paid='1') ORDER BY departure DESC,nama,room LIMIT 200";
+								<?php
+									$sql="SELECT grup FROM trx_booking WHERE kode='".$_GET["booking_kode"]."'";
+									$hsl = mysql_query($sql,$db);
+									list($grup) = mysql_fetch_array($hsl);
+									if(!$grup){
+										$kodes[$_GET["booking_kode"]] = 1;
+									} else {
+										$sql = "SELECT kode FROM trx_booking WHERE grup = '$grup'";
+										$hsl = mysql_query($sql,$db);
+										while(list($kodeBooking) = mysql_fetch_array($hsl)){
+											$kodes[$kodeBooking] = 1;
+										}
+									}
+									$sql="SELECT kode,arrival,departure,nama,room FROM trx_booking WHERE room<>'' AND kode NOT IN (SELECT booking FROM trx_billing WHERE paid='1') ORDER BY departure DESC,nama,room LIMIT 200";
 									$hslbook=mysql_query($sql,$db);
 									while(list($_kode,$_arrival,$_tanggal,$_nama,$_room)=mysql_fetch_array($hslbook)){
 										$sql="SELECT nama FROM mst_room WHERE kode='$_room'";
 										$hsltemp=mysql_query($sql,$db);
 										list($_room)=mysql_fetch_array($hsltemp);
+										$ischecked = "";
+										if($_POST["booking"][$_kode] || $_GET["booking_kode"] == $_kode || $kodes[$_kode]){$ischecked = "checked";}
 								?>
 									<tr>
-										<td><input type="checkbox" id="chkbooking_<?=str_replace("/","_",$_kode); ?>" name="booking[<?=$_kode; ?>]" value="1" <?php if($_POST["booking"][$_kode] || $_GET["booking_kode"] == $_kode){echo "checked";} ?>></td>
+										<td><input type="checkbox" id="chkbooking_<?=str_replace("/","_",$_kode); ?>" name="booking[<?=$_kode; ?>]" value="1" <?=$ischecked;?>></td>
 										<td>
 											Kode Booking:<?=$_kode; ?><br>
 											<?=format_tanggal3($_tanggal); ?> [Room:<b><?=$_room; ?></b>;C/I: <?=format_tanggal3($_arrival); ?>]  <b><?=$_nama; ?></b>

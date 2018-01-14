@@ -687,14 +687,14 @@ while (($trx_booking->CurrentAction == "gridadd" || !$rs->EOF) &&
 <?php if ($trx_booking->Export == "") { ?>
 <td style="white-space: nowrap;"><span class="phpmaker">
 <?php if($trx_booking->grup->ListViewValue()!="0"){ ?>
-<a href="trx_bookingviewgroup.php?kode=<?php echo $trx_booking->kode->ListViewValue() ?>"><img src="images/view.gif" title="Detail" width="16" height="16" border="0"></a>
+<a href="trx_bookingview.php?kode=<?php echo $trx_booking->grup->ListViewValue() ?>"><img src="images/view.gif" title="Detail" width="16" height="16" border="0"></a>
 <?php }else{ ?>
 <a href="<?php echo $trx_booking->ViewUrl() ?>"><img src="images/view.gif" title="Detail" width="16" height="16" border="0"></a>
 <?php } ?>
 </span></td>
 <td style="white-space: nowrap;"><span class="phpmaker">
 <?php if($trx_booking->grup->ListViewValue()!="0"){ ?>
-<a href="trx_bookingaddgroup.php?kode=<?php echo $trx_booking->kode->ListViewValue() ?>&editing=1"><img src="images/edit.gif" title="Edit" width="16" height="16" border="0"></a>
+<a href="trx_bookingadd.php?kode=<?php echo $trx_booking->grup->ListViewValue() ?>&editing=1"><img src="images/edit.gif" title="Edit" width="16" height="16" border="0"></a>
 <?php }else{ ?>
 <a href="trx_bookingadd.php?kode=<?php echo $trx_booking->kode->ListViewValue() ?>&editing=1"><img src="images/edit.gif" title="Edit" width="16" height="16" border="0"></a>
 <?php } ?>
