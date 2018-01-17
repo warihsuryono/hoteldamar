@@ -18,8 +18,8 @@
 	if(!$periode1){$periode1=date("Y-m-d",mktime(0,0,0,date("m"),1));}
 	$periode2=sanitasi($_POST["periode2"]);
 	if(!$periode2){$periode2=date("Y-m-d",mktime(0,0,0,date("m")+1,0));}
-	
-	$kode_pekerjaan=sanitasi($_POST["kode_pekerjaan"]);
+	$_periode="PERIODE ".format_tanggal($periode1)." - ".format_tanggal($periode2);
+	$bankid=sanitasi($_POST["bankid"]);
 	
 	$load=sanitasi($_POST["load"]);
 	$arrpost=base64_encode(serialize($_POST));
@@ -48,14 +48,27 @@
 									<input id="periode2" type="text" name="periode2" value="<?php echo $periode2; ?>" size="12"><img src="images/calendar.png" border="0" width="13" height="13"  onclick="return showCalendar('periode2')">
 								</td>
 							</tr>
-							<!--tr>
-								<td><b>Kode Pekerjaan</b></td>
+							<tr>
+								<td><b>Kas / Bank</b></td>
 								<td><b>:</b></td>
 								<td>
-									<input type="text" id="kode_pekerjaan" name="kode_pekerjaan" value="<?php echo $kode_pekerjaan; ?>">
-									<img src="images/b_search.png" title="Daftar Kode Pekerjaan" border="0" width="13" height="13" onclick="showKodePekerjaan('kode_pekerjaan')">
+									<select id="bankid" name="bankid">
+										<option value="">-Semua Rekening-</option>
+										<option value="1.0.00" <?=("1.0.00" == $bankid) ? "selected":"";?>>Kas</option>
+										<?php
+											$sql="SELECT coa,description FROM acc_mst_coa WHERE koder='AKTIVA LANCAR' AND description LIKE '%bank%' ORDER BY description";
+											$hsltemp=mysql_query($sql,$db);
+											while(list($_kode,$description)=mysql_fetch_array($hsltemp)){
+												$selected = "";
+												if($_kode == $bankid) $selected = "selected";
+										?>
+											<option value="<?php echo $_kode; ?>" <?=$selected;?>><?php echo $description; ?></option>
+										<?php
+											}
+										?>
+									</select>
 								</td>
-							</tr-->
+							</tr>
 						</table>
 					</td>			
 			</table>
@@ -74,6 +87,61 @@
 	<?php
 		if($load){
 			generateMutasi($periode1,$periode2);
+			$totalcolom = 7;
+			?>
+			<table width="100%"><tr><td align="center" <?php if($_POST["export"]) {echo "colspan=$totalcolom";} ?>><h3>HOTEL DAMAR</h3></td></tr></table>
+			<table width="100%"><tr><td align="center" <?php if($_POST["export"]) {echo "colspan=$totalcolom";} ?>><h3>MUTASI KAS/BANK</h3></td></tr></table>
+			<table width="100%"><tr><td align="center" <?php if($_POST["export"]) {echo "colspan=$totalcolom";} ?>><h3><?php echo $_periode; ?></h3></td></tr></table>
+			<table class="content_table" <?php if($_POST["export"]) {echo "border=1";} ?>>
+				<tr class="content_header">
+					<td><b>No</b></td>
+					<td><b>Tgl</b></td>
+					<td><b>Bank/Kas</b></td>
+					<td><b>Reference<br>Number</b></td>
+					<td><b>Description</b></td>
+					<td><b>Debit</b></td>
+					<td><b>Kredit</b></td>
+				</tr>
+			<?php
+			if($bankid != "") $whereclause = "AND coa = '".$bankid."'";
+			$no = 0;
+			$DEBIT = 0;
+			$KREDIT = 0;
+			$sql = "SELECT * FROM trx_mutasi WHERE trxDate BETWEEN '".$periode1."' AND '".$periode2."' ".$whereclause." ORDER BY trxDate";
+			$hslMutasi = mysql_query($sql,$db);
+			while($mutasi = mysql_fetch_array($hslMutasi)){
+				$no++;
+				$sql = "SELECT description FROM acc_mst_coa WHERE coa='".$mutasi["coa"]."'";$hsltemp = mysql_query($sql,$db);
+				list($coaDesc) = mysql_fetch_array($hsltemp);
+				$debit = $mutasi["debit"];
+				$kredit = $mutasi["credit"];
+				$DEBIT += $debit;
+				$KREDIT += $kredit;
+				?>
+					<tr>
+						<td align="right"><?php echo $no; ?></td>
+						<td><?=format_tanggal($mutasi["trxDate"]); ?></td>
+						<td><?=$coaDesc; ?></td>
+						<td><?=$mutasi["refno"]; ?></td>
+						<td><?=$mutasi["description"]; ?></td>
+						<td align="right"><?php if($debit>=1){if($_POST["export"]){echo $debit;}else{echo number_format($debit,2);}}else{echo "";} ?></td>
+						<td align="right"><?php if($kredit>=1){if($_POST["export"]){echo $kredit;}else{echo number_format($kredit,2);}}else{echo "";} ?></td>
+					</tr>
+					
+				<?php
+			}
+			?>
+				<tr>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td><b>TOTAL</b></td>
+					<td align="right"><b><?php if($DEBIT>=1){if($_POST["export"]){echo $DEBIT;}else{echo number_format($DEBIT,2);}}else{echo "";} ?></b></td>
+					<td align="right"><b><?php if($KREDIT>=1){if($_POST["export"]){echo $KREDIT;}else{echo number_format($KREDIT,2);}}else{echo "";} ?></b></td>
+				</tr>
+			</table>
+			<?php
 		}
 	?>
 	

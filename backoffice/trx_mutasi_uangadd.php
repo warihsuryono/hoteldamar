@@ -114,7 +114,7 @@ var ew_DHTMLEditors = [];
 //-->
 
 </script>
-<p><span class="phpmaker"><!-- Add to --><h3><b>Mutasi Keuangan</b></h3><br><br>
+<p><span class="phpmaker"><!-- Add to --><h3><b>Pembiayaan dengan Kas/Bank</b></h3><br><br>
 <!--a href="<?php echo $trx_mutasi_uang->getReturnUrl() ?>">Go Back</a-->
 <input type="button" value="Kembali" onclick="window.location='<?php echo $trx_mutasi_uang->getReturnUrl() ?>';">
 </span></p>

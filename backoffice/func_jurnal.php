@@ -43,7 +43,7 @@
 				} else {
 					$dpbank = "1.0.00";
 				}
-				$description = "Ref No: ".$refno." -- Deposit [".$depositType."] ($rooms) ".format_tanggal($arrival)." s/d ".format_tanggal($departure)."  a/n ".$title.". ".$nama;
+				$description = "Deposit [".$depositType."] ($rooms) ".format_tanggal($arrival)." s/d ".format_tanggal($departure)."  a/n ".$title.". ".$nama;
 				$sql = "INSERT INTO trx_mutasi (trxDate,byGenerated,coa,refno,debit,description,created_at,created_by) VALUES ";
 				$sql .= "('".$dpdate."','1','".$dpbank."','".$refno."','".$dp."','".$description."',NOW(),'".$__username."')";
 				mysql_query($sql,$db);
@@ -71,7 +71,6 @@
 			} else {
 				$sql = "SELECT title,nama,arrival,departure,room FROM trx_booking WHERE grup='".$bookingGrup."'";
 			}
-			echo $sql."<br>";
 			$hslRooms = mysql_query($sql,$db);
 			while(list($title,$nama,$arrival,$departure,$kodeRoom) = mysql_fetch_array($hslRooms)){
 				$rooms .= getRoomName($kodeRoom).",";
@@ -110,6 +109,34 @@
 			
 			$sql = "INSERT INTO trx_mutasi (trxDate,byGenerated,coa,refno,debit,credit,description,created_at,created_by) VALUES ";
 			$sql .= "('".$payments["paid_at"]."','1','".$dpbank."','','".$debit."','".$credit."','".$description."',NOW(),'".$__username."')";
+			mysql_query($sql,$db);
+			if(mysql_affected_rows($db) > 0) $affected++;
+		}
+		
+		//trx_mutasi_uang
+		$sql = "SELECT * FROM trx_mutasi_uang WHERE tanggal BETWEEN '".$date1."' AND '".$date2."'";
+		$hslMutasi = mysql_query($sql,$db);
+		while($mutasi = mysql_fetch_array($hslMutasi)){
+			$depositType = "";
+			if($mutasi["mode"] == "kas") $depositType = "Cash";
+			if($mutasi["mode"] == "bank") $depositType = "Bank Transfer";
+			$dpbank = $mutasi["coabank"];
+			if($dpbank != ""){
+				$sql = "SELECT description FROM acc_mst_coa WHERE coa = '".$dpbank."'";
+				$hsltemp = mysql_query($sql,$db);
+				list($bankname) = mysql_fetch_array($hsltemp);
+				$depositType .= " -- ".$bankname;
+			} else {
+				$dpbank = "1.0.00";
+			}
+			
+			$description = $mutasi["notes"];
+			
+			$debit = $mutasi["debit"];
+			$credit = $mutasi["kredit"];
+			
+			$sql = "INSERT INTO trx_mutasi (trxDate,byGenerated,coa,refno,debit,credit,description,created_at,created_by) VALUES ";
+			$sql .= "('".$mutasi["tanggal"]."','1','".$dpbank."','".$mutasi["kode"]."','".$debit."','".$credit."','".$description."',NOW(),'".$__username."')";
 			mysql_query($sql,$db);
 			if(mysql_affected_rows($db) > 0) $affected++;
 		}

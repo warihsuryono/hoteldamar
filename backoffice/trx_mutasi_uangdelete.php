@@ -71,7 +71,7 @@ if ($trx_mutasi_uang_deletelTotalRecs <= 0) { // No record found, exit
 	$trx_mutasi_uang_delete->Page_Terminate("trx_mutasi_uanglist.php"); // Return to list
 }
 ?>
-<p><span class="phpmaker">Delete From <h3><b>Mutasi Keuangan</b></h3><br><br>
+<p><span class="phpmaker">Delete From <h3><b>Pembiayaan dengan Kas/Bank</b></h3><br><br>
 <a href="<?php echo $trx_mutasi_uang->getReturnUrl() ?>">Go Back</a></span></p>
 <?php $trx_mutasi_uang_delete->ShowMessage() ?>
 <form action="<?php echo ew_CurrentPage() ?>" method="post">

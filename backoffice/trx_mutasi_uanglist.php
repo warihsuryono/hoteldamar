@@ -113,7 +113,7 @@ var ew_DHTMLEditors = [];
 	if ($bSelectLimit)
 		$rs = $trx_mutasi_uang_list->LoadRecordset($trx_mutasi_uang_list->lStartRec-1, $trx_mutasi_uang_list->lDisplayRecs);
 ?>
-<p><span class="phpmaker" style="white-space: nowrap;"><h3><b>Mutasi Keuangan</b></h3>
+<p><span class="phpmaker" style="white-space: nowrap;"><h3><b>Pembiayaan dengan Kas/Bank</b></h3>
 <?php if ($trx_mutasi_uang->Export == "" && $trx_mutasi_uang->CurrentAction == "") { ?>
 &nbsp;&nbsp;<a href="<?php echo $trx_mutasi_uang_list->PageUrl() ?>export=print"><img src="images/b_print.png" title="Printer Friendly" width="16" height="16" border="0"></a>
 <?php } ?>
