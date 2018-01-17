@@ -69,6 +69,30 @@
 		if($multiroom) $sql="UPDATE trx_billing SET paymenttype='$paymenttype',paid=1 WHERE grup='$_grupBilling'";
 		else $sql="UPDATE trx_billing SET paymenttype='$paymenttype',paid=1 WHERE kode='$kode'";
 		mysql_query($sql,$db);
+		
+		$kodeBilling = $kode;
+		if($multiroom) $grupBilling = $_grupBilling;
+		else $grupBilling = "";
+		if($paycash != 0){
+			$sql = "INSERT INTO trx_billing_payments (kodeBilling,grupBilling,paid_at,paymenttype,nominal,coabank,noedc,created_at,created_by) VALUES ";
+			$sql .= "('$kodeBilling','$grupBilling','$tanggal','01','$paycash','','',NOW(),'$__username')";
+			mysql_query($sql,$db);
+		}
+		if($payedc1 != 0){
+			$sql = "INSERT INTO trx_billing_payments (kodeBilling,grupBilling,paid_at,paymenttype,nominal,coabank,noedc,created_at,created_by) VALUES ";
+			$sql .= "('$kodeBilling','$grupBilling','$tanggal','02','$payedc1','$coaedc1','$noedc1',NOW(),'$__username')";
+			mysql_query($sql,$db);
+		}
+		if($payedc2 != 0){
+			$sql = "INSERT INTO trx_billing_payments (kodeBilling,grupBilling,paid_at,paymenttype,nominal,coabank,noedc,created_at,created_by) VALUES ";
+			$sql .= "('$kodeBilling','$grupBilling','$tanggal','02','$payedc2','$coaedc2','$noedc2',NOW(),'$__username')";
+			mysql_query($sql,$db);
+		}
+		if($paytrf != 0){
+			$sql = "INSERT INTO trx_billing_payments (kodeBilling,grupBilling,paid_at,paymenttype,nominal,coabank,noedc,created_at,created_by) VALUES ";
+			$sql .= "('$kodeBilling','$grupBilling','$tanggal','04','$paytrf','$coatrf','$notrf',NOW(),'$__username')";
+			mysql_query($sql,$db);
+		}
 	}
 ?>
 <?php
