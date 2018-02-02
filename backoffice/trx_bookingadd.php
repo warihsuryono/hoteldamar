@@ -32,7 +32,7 @@
 		$sql="SELECT DATEDIFF(DATE('$departure'),DATE('$arrival'))";
 		$hsltemp=mysql_query($sql,$db);
 		list($lamainap)=mysql_fetch_array($hsltemp);
-		if($lamainap<=0){$errormessage="Tanggal Arrival dan atau departure Salah!";$datavalid=false;}		
+		if($lamainap<=0 || $lamainap > 120){$errormessage="Tanggal Arrival dan atau departure Salah!";$datavalid=false;}		
 		
 		if($datavalid){//tidak ada masalah dengan tanggal arrival dan departure
 			foreach($_POST["rooms"] as $room => $val){
