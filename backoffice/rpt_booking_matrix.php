@@ -135,6 +135,7 @@
 				<img width='20' height='20' src='emoticon/confirm.jpg'> : Confirmed &nbsp;&nbsp;&nbsp;&nbsp;
 				<img width='20' height='20' src='emoticon/checkin.jpg'> : Check In &nbsp;&nbsp;&nbsp;&nbsp;
 				<img width='20' height='20' src='emoticon/cancel.jpg'> : Batal &nbsp;&nbsp;&nbsp;&nbsp;
+				<img width='20' height='20' src='emoticon/checkout.jpg'> : Check Out &nbsp;&nbsp;&nbsp;&nbsp;
 			</td>
 		</tr>
 	</table>
@@ -201,6 +202,28 @@
 							if(strrpos($booked,"a href='#2")){
 								$booked="<img width='15' height='15' src='emoticon/none.jpg'><br>".$booked;
 							}
+							if(strrpos($booked,"a href='#3")){
+								// $kode = explode("trx_bookingview.php?kode=",$booked);
+								// $kode = explode("',",$kode[1]);
+								// $kode = $kode[0];
+								// $sql = "SELECT count(0) FROM trx_billing WHERE paid = '1' AND booking='".$kode."'";
+								// $hsltemp=mysql_query($sql,$db);
+								// list($checkout)=mysql_fetch_array($hsltemp);
+								// if($checkout > 0){
+									// $booked = str_replace("src='emoticon/checkin.jpg'","src='emoticon/checkout.jpg'",$booked);
+								// }
+							}
+						}
+						$kode = explode("trx_bookingview.php?kode=",$booked);
+						$kode = explode("',",$kode[1]);
+						$kode = $kode[0];
+						$sql = "SELECT count(0) FROM trx_billing WHERE paid = '1' AND booking='".$kode."'";
+						$hsltemp=mysql_query($sql,$db);
+						list($checkout)=mysql_fetch_array($hsltemp);
+						if($checkout > 0){
+							$booked = str_replace("src='emoticon/confirm.jpg'","src='emoticon/checkout.jpg'",$booked);
+							$booked = str_replace("src='emoticon/checkin.jpg'","src='emoticon/checkout.jpg'",$booked);
+							$booked = str_replace("src='emoticon/none.jpg'","src='emoticon/checkout.jpg'",$booked);
 						}
 				?>
 					<td align="right" valign="top"><b><?php echo $booked; ?></b></td>
