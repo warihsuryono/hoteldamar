@@ -28,10 +28,48 @@ $mst_room_list->Page_Main();
 ?>
 <?php include "header.php" ?>
 <?php
-	if(isset($_POST["save_price"])){
+	if(isset($_POST["save_room_status"])){
 		$sql="UPDATE mst_room SET price='".$_POST["price"]."',price2='".$_POST["price2"]."',status='".$_POST["status"]."' WHERE kode = '".$_POST["kode"]."'";
 		mysql_query($sql,$db);
+		$sql = "INSERT INTO room_status_history (effective_at,room_id,status,notes,created_at,created_by,created_ip,updated_at,updated_by,updated_ip) ";
+		$sql .= "VALUES ('".$_POST["effective_at"]."','".$_POST["kode"]."','".$_POST["status"]."','".$_POST["notes"]."',NOW(),'".$_SESSION["username"]."','".$_SERVER["REMOTE_ADDR"]."',NOW(),'".$_SESSION["username"]."','".$_SERVER["REMOTE_ADDR"]."')";
+		mysql_query($sql,$db);
 		echo "<font color='blue'>Data Saved!</font>";
+	}
+	
+	if(isset($_POST["save_price"])){
+		//cari status sebelumnya
+		$sql = "SELECT status FROM mst_room WHERE kode = '".$_POST["kode"]."'";
+		$hsltemp = mysql_query($sql,$db);
+		list($lastStatus) = mysql_fetch_array($hsltemp);
+		if($lastStatus == $_POST["status"]){
+			$sql="UPDATE mst_room SET price='".$_POST["price"]."',price2='".$_POST["price2"]."' WHERE kode = '".$_POST["kode"]."'";
+			mysql_query($sql,$db);
+			echo "<font color='blue'>Data Saved!</font>";
+		} else {
+			?>
+				<fieldset>
+					<legend style="font-size:12px;"><b>Perubahan Status Kamar</b></legend>
+					<form method="POST">
+						<input type="hidden" name="kode" value="<?=$_POST["kode"];?>">
+						<input type="hidden" name="price" value="<?=$_POST["price"];?>">
+						<input type="hidden" name="price2" value="<?=$_POST["price2"];?>">
+						<input type="hidden" name="status" value="<?=$_POST["status"];?>">
+						<font color="red" style="font-weight:bolder;color:red;font-size:14px;">Ada perubahan status kamar. Silakan lengkapi kolom berikut:</font><br>
+						<table>
+							<tr><td><b>Tanggal Berlaku Perubahan</b></td><td><b> : <input type="date" name="effective_at" value="<?=date("Y-m-d");?>"></b></td></tr>
+							<tr><td><b>Keterangan</b></td><td><b> : <input type="text" name="notes" value="" size="100"></b></td></tr>
+							<tr>
+								<td colspan="2" align="center">
+									<input type="submit" name="save_room_status" value="Save">
+									<input type="button" value="Cancel" onclick="window.location='mst_roomlist.php?x_idmenu=70';">
+								</td>
+							</tr>
+						</table>
+					</form>
+				</fieldset>
+			<?php
+		}
 	}
 ?>
 <?php if ($mst_room->Export == "") { ?>
