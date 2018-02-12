@@ -65,7 +65,7 @@
 			$sql.="('login',NOW(),'$username','$password','".$_SESSION['id_group']."','".$_SESSION['gudangid']."','".$_SERVER["REMOTE_ADDR"]."')";
 			mysql_query($sql,$db);
 			
-			$_SESSION["change_menu_left_menu"]=1;
+			$_SESSION["change_menu_left_menu"]=0;
 			
 			echo "
 				<script language='javascript'>

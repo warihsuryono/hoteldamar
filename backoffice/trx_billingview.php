@@ -3,7 +3,8 @@
 	include_once "func.openwin.php";
 	include_once "func_number_format.php";
 	include_once "func_jurnal.php";
-	$kode=$_GET["kode"];	
+	$kode=$_GET["kode"];
+	$rates = unserialize(base64_decode($_GET["rates"]));
 	$sql="SELECT kode,grup,booking FROM trx_billing WHERE grup IN (SELECT grup FROM trx_billing WHERE kode = '$kode') ORDER BY booking";
 	$hsl=mysql_query($sql,$db);
 	$affectted_row = mysql_affected_rows($db);
@@ -110,14 +111,14 @@
 		$sql="SELECT description FROM mst_id_type WHERE kode='$idtype'";$hsltemp=mysql_query($sql,$db);
 		list($idtype)=mysql_fetch_array($hsltemp);
 		
+		$kdroom=$room;
 		if($multiroom){
 			$room = $multiroom." Rooms";
 			$sql = "SELECT sum(person) FROM trx_booking WHERE kode IN (SELECT booking FROM trx_billing WHERE grup='$_grupBilling')";$hsltemp=mysql_query($sql,$db);
 			list($person)=mysql_fetch_array($hsltemp);
 		}else{
 			$sql="SELECT description FROM mst_pay_type WHERE kode='$dptype'";$hsltemp=mysql_query($sql,$db);
-			list($dptype)=mysql_fetch_array($hsltemp);
-			$kdroom=$room;	
+			list($dptype)=mysql_fetch_array($hsltemp);	
 			$sql="SELECT nama FROM mst_room WHERE kode='$room'";$hsltemp=mysql_query($sql,$db);
 			list($room)=mysql_fetch_array($hsltemp);
 		}
@@ -145,12 +146,13 @@
 			$_tgl=$arrtgl[2];
 			$_bln=$arrtgl[1];
 			$_thn=$arrtgl[0];
-			$tipeday=date("N",mktime(0,0,0,$_bln,$_tgl,$_thn));
+			/* $tipeday=date("N",mktime(0,0,0,$_bln,$_tgl,$_thn));
 			if($tipeday==7 || $tipeday==1 || $tipeday==2 || $tipeday==3 || $tipeday==4){//weekdays minggu - kamis
 				$totalrate+=$price;
 			}else{
 				$totalrate+=$price2;
-			}
+			} */
+			$totalrate+=$rates[$kdroom][$_tanggalxx];
 			//echo "<br>$_tanggalxx ( $tipeday ) :$totalrate";
 			$_tanggalxx=date("Y-m-d",mktime(0,0,0,$_bln,$_tgl+1,$_thn));
 		}
@@ -480,8 +482,8 @@
 					}
 					
 					//room
-					$sql = "SELECT nama FROM mst_room WHERE kode IN (SELECT room FROM trx_booking WHERE kode='$kodebooking')";$hsltemp = mysql_query($sql,$db);
-					list($roomname) = mysql_fetch_array($hsltemp);
+					$sql = "SELECT kode,nama FROM mst_room WHERE kode IN (SELECT room FROM trx_booking WHERE kode='$kodebooking')";$hsltemp = mysql_query($sql,$db);
+					list($_kdroom,$roomname) = mysql_fetch_array($hsltemp);
 					$_tanggalxx=$arrival;
 					while($_tanggalxx!=$tanggal){
 						$arrtgl=explode("-",$_tanggalxx);
@@ -489,11 +491,12 @@
 						$tipeday=date("N",mktime(0,0,0,$_bln,$_tgl,$_thn));
 						if($tipeday==7 || $tipeday==1 || $tipeday==2 || $tipeday==3 || $tipeday==4){//weekdays minggu - kamis
 							$description = "Room Charge -- $roomname (Week Days)";
-							$nominal = $rate1;
+							// $nominal = $rate1;
 						}else{
 							$description = "Room Charge -- $roomname (Week Ends)";
-							$nominal = $rate2;
+							// $nominal = $rate2;
 						}
+						$nominal = $rates[$_kdroom][$_tanggalxx];
 						$sql = "INSERT INTO trx_billing_details (kode,tanggal,description,debit) VALUES ('$kode','".$_tanggalxx."','$description','$nominal')";
 						$_tanggalxx=date("Y-m-d",mktime(0,0,0,$_bln,$_tgl+1,$_thn));
 						mysql_query($sql,$db);

@@ -1,6 +1,35 @@
 <?php
 	include_once "header.php";
 	include_once "func.openwin.php";
+	include_once "ajax.init.php";
+?>
+<script language="javascript">
+		function loadRoomRate(){
+			var xmlHttp;
+			xmlHttp=initializexmlHttp();
+			xmlHttp.onreadystatechange=function() {
+				if(xmlHttp.readyState==4) {
+					returnvalue=xmlHttp.responseText;
+					document.getElementById("RoomRate").innerHTML=returnvalue;
+					var iframe_height=document.getElementById('content_body_id').scrollHeight;
+					var iframe_width=document.getElementById('content_body_id').scrollWidth;
+					iframe_height=iframe_height+20;
+					iframe_width=iframe_width+20;
+					window.parent.document.getElementById('main_frame_id').height=iframe_height;
+					window.parent.document.getElementById('main_frame_id').width=iframe_width;
+				}
+			}
+			var tanggal = document.getElementById("tanggal").value;
+			var book_chk = document.getElementById("reservationCodes").getElementsByTagName("input");
+			var books = "";
+			for(var ii = 0 ; ii < book_chk.length ; ii++){
+				if(book_chk[ii].checked == true){ books += book_chk[ii].id.replace("chkbooking_","") + "|"; }
+			}
+			xmlHttp.open("GET","ajax.loadRoomRate.php?tanggal="+tanggal+"&books="+books,true);
+			xmlHttp.send(null);	
+		}
+</script>
+<?php
 	if($_GET["correctingArrivalDate"]){
 		$arrivalDate = $_GET["correctingArrivalDate"];
 		$falseBookingArrival = explode("|",$_GET["falseBookingArrival"]);
@@ -23,76 +52,84 @@
 				<legend><b>Guest Bill</b></legend>
 				<table>
 					<tr>
-						<td><b>Bill No<b></td>
-						<td><b>:<b></td>
-						<td><i>Auto Generate</i></td>
-					</tr>
-					<tr>
-						<td><b>Tanggal</b></td>
-						<td><b>:</b></td>
-						<td>
-							<input id="tanggal" type="text" name="tanggal" value="<?php echo $tanggal; ?>" size="12">
-							<img src="images/calendar.png" title="Calendar" border="0" width="13" height="13" onclick="showCalendar('tanggal')">
+						<td valign="top">
+							<table>
+								<tr>
+									<td><b>Bill No<b></td>
+									<td><b>:<b></td>
+									<td><i>Auto Generate</i></td>
+								</tr>
+								<tr>
+									<td><b>Tanggal</b></td>
+									<td><b>:</b></td>
+									<td>
+										<input id="tanggal" type="text" name="tanggal" value="<?php echo $tanggal; ?>" size="12" onkeyup="loadRoomRate();">
+										<img src="images/calendar.png" title="Calendar" border="0" width="13" height="13" onclick="showCalendar('tanggal')">
+									</td>
+								</tr>
+								<tr>
+									<td valign="top"><b>Reservation Code<b></td>
+									<td valign="top"><b>:<b></td>
+									<td>
+										<div id="reservationCodes" style="overflow:scroll; height:400px;width:400px;border:1px solid grey;">
+											<table>
+											<?php
+												$sql="SELECT grup FROM trx_booking WHERE kode='".$_GET["booking_kode"]."'";
+												$hsl = mysql_query($sql,$db);
+												list($grup) = mysql_fetch_array($hsl);
+												if(!$grup){
+													$kodes[$_GET["booking_kode"]] = 1;
+												} else {
+													$sql = "SELECT kode FROM trx_booking WHERE grup = '$grup'";
+													$hsl = mysql_query($sql,$db);
+													while(list($kodeBooking) = mysql_fetch_array($hsl)){
+														$kodes[$kodeBooking] = 1;
+													}
+												}
+												$sql="SELECT kode,arrival,departure,nama,room FROM trx_booking WHERE room<>'' AND kode NOT IN (SELECT booking FROM trx_billing WHERE paid='1') ORDER BY departure DESC,nama,room LIMIT 200";
+												$hslbook=mysql_query($sql,$db);
+												while(list($_kode,$_arrival,$_tanggal,$_nama,$_room)=mysql_fetch_array($hslbook)){
+													$sql="SELECT nama FROM mst_room WHERE kode='$_room'";
+													$hsltemp=mysql_query($sql,$db);
+													list($_room)=mysql_fetch_array($hsltemp);
+													$ischecked = "";
+													if($_POST["booking"][$_kode] || $_GET["booking_kode"] == $_kode || $kodes[$_kode]){$ischecked = "checked";}
+											?>
+												<tr>
+													<td><input onchange="loadRoomRate();" type="checkbox" id="chkbooking_<?=str_replace("/","_",$_kode); ?>" name="booking[<?=$_kode; ?>]" value="1" <?=$ischecked;?>></td>
+													<td>
+														Kode Booking:<?=$_kode; ?> <b><?=format_tanggal3($_tanggal); ?></b><br>
+														[Room:<b><?=$_room; ?></b>;C/I: <?=format_tanggal3($_arrival); ?>]  <b><?=$_nama; ?></b>
+													</td>
+												</tr>
+											<?php
+												}
+											?>
+											</table>
+										</div>
+									</td>
+								</tr>	
+								<tr>
+									<td nowrap><b>Late Checkout Fee</b></td>
+									<td><b>:</b></td>
+									<td nowrap>
+										Rp. <input name="latecheckoutFee" id="latecheckoutFee">
+									</td>
+								<tr>			
+								<tr>
+									<td><b>Nett</b></td>
+									<td><b>:</b></td>
+									<td nowrap>
+										<input type="checkbox" name="nett" id="nett" checked onclick="return false;" value="1" <?php if(isset($_POST["nett"])){echo "checked";} ?>>NETT
+									</td>
+								<tr>			
+								<tr>
+									<td colspan="3"><input type="submit" name="calculate" value="Calculate Bill"></td>
+								</tr>
+							</table>
 						</td>
-					</tr>
-					<tr>
-						<td valign="top"><b>Reservation Code<b></td>
-						<td valign="top"><b>:<b></td>
-						<td>
-							<div id="reservationCodes" style="overflow:scroll; height:400px;width:600px;border:1px solid grey;">
-								<table>
-								<?php
-									$sql="SELECT grup FROM trx_booking WHERE kode='".$_GET["booking_kode"]."'";
-									$hsl = mysql_query($sql,$db);
-									list($grup) = mysql_fetch_array($hsl);
-									if(!$grup){
-										$kodes[$_GET["booking_kode"]] = 1;
-									} else {
-										$sql = "SELECT kode FROM trx_booking WHERE grup = '$grup'";
-										$hsl = mysql_query($sql,$db);
-										while(list($kodeBooking) = mysql_fetch_array($hsl)){
-											$kodes[$kodeBooking] = 1;
-										}
-									}
-									$sql="SELECT kode,arrival,departure,nama,room FROM trx_booking WHERE room<>'' AND kode NOT IN (SELECT booking FROM trx_billing WHERE paid='1') ORDER BY departure DESC,nama,room LIMIT 200";
-									$hslbook=mysql_query($sql,$db);
-									while(list($_kode,$_arrival,$_tanggal,$_nama,$_room)=mysql_fetch_array($hslbook)){
-										$sql="SELECT nama FROM mst_room WHERE kode='$_room'";
-										$hsltemp=mysql_query($sql,$db);
-										list($_room)=mysql_fetch_array($hsltemp);
-										$ischecked = "";
-										if($_POST["booking"][$_kode] || $_GET["booking_kode"] == $_kode || $kodes[$_kode]){$ischecked = "checked";}
-								?>
-									<tr>
-										<td><input type="checkbox" id="chkbooking_<?=str_replace("/","_",$_kode); ?>" name="booking[<?=$_kode; ?>]" value="1" <?=$ischecked;?>></td>
-										<td>
-											Kode Booking:<?=$_kode; ?><br>
-											<?=format_tanggal3($_tanggal); ?> [Room:<b><?=$_room; ?></b>;C/I: <?=format_tanggal3($_arrival); ?>]  <b><?=$_nama; ?></b>
-										</td>
-									</tr>
-								<?php
-									}
-								?>
-								</table>
-							</div>
-						</td>
-					</tr>	
-					<tr>
-						<td nowrap><b>Late Checkout Fee</b></td>
-						<td><b>:</b></td>
-						<td nowrap>
-							Rp. <input name="latecheckoutFee" id="latecheckoutFee">
-						</td>
-					<tr>			
-					<tr>
-						<td><b>Nett</b></td>
-						<td><b>:</b></td>
-						<td nowrap>
-							<input type="checkbox" name="nett" id="nett" checked onclick="return false;" value="1" <?php if(isset($_POST["nett"])){echo "checked";} ?>>NETT
-						</td>
-					<tr>			
-					<tr>
-						<td colspan="3"><input type="submit" name="calculate" value="Calculate Bill"></td>
+						<td width="1">&nbsp;</td>
+						<td valign="top" id="RoomRate" width="1"></td>
 					</tr>
 				</table>
 			</fieldset>
@@ -175,12 +212,15 @@
 						$_tgl=$arrtgl[2];
 						$_bln=$arrtgl[1];
 						$_thn=$arrtgl[0];
-						$tipeday=date("N",mktime(0,0,0,$_bln,$_tgl,$_thn));
+						
+						/* $tipeday=date("N",mktime(0,0,0,$_bln,$_tgl,$_thn));
 						if($tipeday==7 || $tipeday==1 || $tipeday==2 || $tipeday==3 || $tipeday==4){//weekdays minggu - kamis
 							$totalrate+=$price;
 						}else{
 							$totalrate+=$price2;
-						}
+						} */
+						$totalrate+=$_POST["rate"][$kdroom][$_tanggalxx];
+						
 						$_tanggalxx=date("Y-m-d",mktime(0,0,0,$_bln,$_tgl+1,$_thn));
 					}
 					$__ppn=0;
@@ -220,7 +260,7 @@
 				}
 				?>
 				<script language="javascript">
-					window.location="trx_billingview.php?kode=<?php echo $kode; ?>";
+					window.location="trx_billingview.php?kode=<?php echo $kode; ?>&rates=<?=base64_encode(serialize($_POST["rate"]));?>";
 				</script>
 				<?php 
 				exit(); 
@@ -247,6 +287,7 @@
 	<script> 
 		document.getElementById("tanggal").value = "<?=$_GET["checkoutDate"];?>"; 
 		$("#reservationCodes").animate({scrollTop : $("#chkbooking_<?=str_replace("/","_",$_GET["booking_kode"]); ?>").offset().top-60},800);
+		loadRoomRate();
 	</script>
 	<?php } ?>
 <?php
