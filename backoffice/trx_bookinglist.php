@@ -36,6 +36,12 @@ $trx_booking_list->Page_Main();
 ?>
 <?php if ($trx_booking->Export == "") { ?>
 <script type="text/javascript">
+
+function deleting (kode,nama,arrival,departure){
+	if(confirm("Anda yakin akan menghapus Reservasi dengan kode : " + kode + " atas nama `" + nama + "`?")){
+		window.location = "?deleting=1&kode="+ kode +"&nama="+ nama +"&arrival="+ arrival +"&departure="+ departure;
+	}
+}
 <!--
 
 // Create page object
@@ -699,7 +705,7 @@ while (($trx_booking->CurrentAction == "gridadd" || !$rs->EOF) &&
 <a href="trx_bookingadd.php?kode=<?php echo $trx_booking->kode->ListViewValue() ?>&editing=1"><img src="images/edit.gif" title="Edit" width="16" height="16" border="0"></a>
 <?php } ?>
 <?php if($__username == "superuser"){ ?>
-<a href="trx_bookinglist.php?kode=<?php echo $trx_booking->kode->ListViewValue() ?>&deleting=1&nama=<?php echo $trx_booking->nama->ListViewValue() ?>&arrival=<?php echo $trx_booking->arrival->ListViewValue() ?>&departure=<?php echo $trx_booking->departure->ListViewValue() ?>"><img src="images/b_drop.png" title="Delete" width="16" height="16" border="0"></a>
+<a href="javascript:deleting('<?=$trx_booking->kode->ListViewValue();?>','<?=$trx_booking->nama->ListViewValue();?>','<?=$trx_booking->arrival->ListViewValue();?>','<?=$trx_booking->departure->ListViewValue();?>');"><img src="images/b_drop.png" title="Delete" width="16" height="16" border="0"></a>
 <?php } ?>
 </span></td>
 <?php
