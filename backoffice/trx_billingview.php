@@ -495,10 +495,10 @@
 						$nominal = $rates[$_kdroom][$_tanggalxx];
 						if($tipeday==7 || $tipeday==1 || $tipeday==2 || $tipeday==3 || $tipeday==4){//weekdays minggu - kamis
 							$description = "Room Charge -- $roomname (Week Days)";
-							if($nominal == 0) $nominal = $rate1;
+							if($nominal == 0 && $_tanggalxx < "2018-02-15") $nominal = $rate1;
 						}else{
 							$description = "Room Charge -- $roomname (Week Ends)";
-							if($nominal == 0) $nominal = $rate2;
+							if($nominal == 0 && $_tanggalxx < "2018-02-15") $nominal = $rate2;
 						}
 						$sql = "INSERT INTO trx_billing_details (kode,tanggal,description,debit) VALUES ('$kode','".$_tanggalxx."','$description','$nominal')";
 						mysql_query($sql,$db);
