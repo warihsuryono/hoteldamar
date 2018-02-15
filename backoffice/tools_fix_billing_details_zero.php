@@ -1,5 +1,5 @@
 <?php
-	include_once "connect_config.php";
+	include_once "connect_config.php";exit();//once only
 	if(!$db=mysql_connect($host,$user,$pass)){echo "DB Not Connect!";}
 	mysql_select_db($dbname,$db);
 	$sql = "SELECT * FROM `trx_billing_details` WHERE description LIKE 'Room Charge%' AND debit+credit = 0;";
