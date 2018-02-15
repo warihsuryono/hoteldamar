@@ -258,9 +258,11 @@
 					$sql="UPDATE mst_room SET available='0',booked='0' WHERE kode='$kdroom'";
 					mysql_query($sql,$db);
 				}
+				$sql = "UPDATE trx_billing SET rates='".base64_encode(serialize($_POST["rate"]))."' WHERE kode = '".$kode."'";
+				mysql_query($sql,$db);
 				?>
 				<script language="javascript">
-					window.location="trx_billingview.php?kode=<?php echo $kode; ?>&rates=<?=base64_encode(serialize($_POST["rate"]));?>";
+					window.location="trx_billingview.php?kode=<?php echo $kode; ?>";
 				</script>
 				<?php 
 				exit(); 

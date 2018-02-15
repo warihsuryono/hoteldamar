@@ -4,6 +4,9 @@
 	include_once "func_number_format.php";
 	include_once "func_jurnal.php";
 	$kode=$_GET["kode"];
+	$sql = "SELECT rates FROM trx_billing WHERE kode = '".$kode."'";
+	$hsltemp = mysql_query($sql,$db);
+	list($_GET["rates"]) = mysql_fetch_array($hsltemp);
 	$rates = unserialize(base64_decode($_GET["rates"]));
 	$sql="SELECT kode,grup,booking FROM trx_billing WHERE grup IN (SELECT grup FROM trx_billing WHERE kode = '$kode') ORDER BY booking";
 	$hsl=mysql_query($sql,$db);
@@ -489,17 +492,17 @@
 						$arrtgl=explode("-",$_tanggalxx);
 						$_tgl=$arrtgl[2]; $_bln=$arrtgl[1]; $_thn=$arrtgl[0];
 						$tipeday=date("N",mktime(0,0,0,$_bln,$_tgl,$_thn));
+						$nominal = $rates[$_kdroom][$_tanggalxx];
 						if($tipeday==7 || $tipeday==1 || $tipeday==2 || $tipeday==3 || $tipeday==4){//weekdays minggu - kamis
 							$description = "Room Charge -- $roomname (Week Days)";
-							// $nominal = $rate1;
+							if($nominal == 0) $nominal = $rate1;
 						}else{
 							$description = "Room Charge -- $roomname (Week Ends)";
-							// $nominal = $rate2;
+							if($nominal == 0) $nominal = $rate2;
 						}
-						$nominal = $rates[$_kdroom][$_tanggalxx];
 						$sql = "INSERT INTO trx_billing_details (kode,tanggal,description,debit) VALUES ('$kode','".$_tanggalxx."','$description','$nominal')";
-						$_tanggalxx=date("Y-m-d",mktime(0,0,0,$_bln,$_tgl+1,$_thn));
 						mysql_query($sql,$db);
+						$_tanggalxx=date("Y-m-d",mktime(0,0,0,$_bln,$_tgl+1,$_thn));
 					}
 					//miscellaneous
 					$sql="SELECT kode FROM trx_additional_detail WHERE kode IN (SELECT kode FROM trx_additional WHERE kodebooking='$kodebooking' AND (paid='0' OR paid='2')) ORDER BY kode,seqno";

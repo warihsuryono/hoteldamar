@@ -37,6 +37,18 @@ $trx_booking_list->Page_Main();
 <?php if ($trx_booking->Export == "") { ?>
 <script type="text/javascript">
 
+function todayArrival(){
+	document.getElementById("x_arrival").value = "<?=date("d/m/Y");?>";
+	document.getElementById("x_departure").value = "";
+	document.getElementById("Submit").click();
+}
+
+function todayDeparture(){
+	document.getElementById("x_arrival").value = "";
+	document.getElementById("x_departure").value = "<?=date("d/m/Y");?>";
+	document.getElementById("Submit").click();
+}
+
 function deleting (kode,nama,arrival,departure){
 	if(confirm("Anda yakin akan menghapus Reservasi dengan kode : " + kode + " atas nama `" + nama + "`?")){
 		window.location = "?deleting=1&kode="+ kode +"&nama="+ nama +"&arrival="+ arrival +"&departure="+ departure;
@@ -499,6 +511,12 @@ if (is_array($arwrk)) {
 <?php } ?>
 <span class="phpmaker">
 <input type="button" name="AddBook" value="Reservation" onclick="window.location='trx_bookingadd.php';">
+&nbsp;
+<input type="button" name="ShowAllData" value="Show All Data" onclick="window.location='?cmd=reset';">
+&nbsp;
+<input type="button" name="today_arrival" value="Today Arrival" onclick="todayArrival();">
+&nbsp;
+<input type="button" name="today_departure" value="Today Departure" onclick="todayDeparture();">
 <!--input type="button" name="AddGroup" value="Group Reservation" onclick="window.location='trx_bookingaddgroup.php';"-->
 </span>
 </div>
@@ -704,6 +722,7 @@ while (($trx_booking->CurrentAction == "gridadd" || !$rs->EOF) &&
 <?php }else{ ?>
 <a href="trx_bookingadd.php?kode=<?php echo $trx_booking->kode->ListViewValue() ?>&editing=1"><img src="images/edit.gif" title="Edit" width="16" height="16" border="0"></a>
 <?php } ?>
+<a href="trx_billingadd.php?booking_kode=<?=$trx_booking->kode->ListViewValue();?>&checkoutDate=<?=date("Y-m-d");?>"><img src="emoticon/checkout.jpg" title="Check Out" width="16" height="16" border="0"></a>
 <?php if($__username == "superuser"){ ?>
 <a href="javascript:deleting('<?=$trx_booking->kode->ListViewValue();?>','<?=$trx_booking->nama->ListViewValue();?>','<?=$trx_booking->arrival->ListViewValue();?>','<?=$trx_booking->departure->ListViewValue();?>');"><img src="images/b_drop.png" title="Delete" width="16" height="16" border="0"></a>
 <?php } ?>

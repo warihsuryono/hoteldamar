@@ -78,7 +78,7 @@
 	<?php
 		echo $errmessage;
 		if($errmessage=="" && $load){
-			$totalcolom=$numdate+2;
+			$totalcolom=12;
 			$arrperiode1=explode("-",$periode1);
 			$tahun1=$arrperiode1[0];
 			$bulan1=$arrperiode1[1];
@@ -134,7 +134,10 @@
 			<td><b>Room Sold</b></td>
 			<td><b>Occupancy (%)</b></td>
 			<td><b>ARR</b></td>
-			<td><b>Room Revenue</b></td>
+			<td><b>Gross Room Revenue</b></td>
+			<td><b>Nett Room Revenue</b></td>
+			<td><b>21% Service and Tax</b></td>
+			<td><b>Total Revenue</b></td>
 		</tr>
 		<?php
 			$_roomAvailable = 0;
@@ -143,6 +146,8 @@
 			$_roomOccupied = 0;
 			$_roomSold = 0;
 			$_arr = 0;
+			$_gross = 0;
+			$_tax21 = 0;
 			$_revenue = 0;
 			for($day=0;$day<$numdate;$day++){
 				$tgl=$tanggal1+$day; 
@@ -175,15 +180,43 @@
 				$roomOccupied = count($roomOccupied);
 				$occupancy = round($roomSold/$roomSaleable*100);
 				
-				$revenue = 0;
-				$sql = "SELECT kode FROM trx_billing WHERE tanggal = '".$currentdate."' AND paid='1'";
-				$hslRevenue = mysql_query($sql,$db);
-				while(list($kodeBilling) = mysql_fetch_array($hslRevenue)){
-					$sql = "SELECT sum(debit) FROM trx_billing_details WHERE kode = '".$kodeBilling."'";
-					$hsltemp = mysql_query($sql,$db);
-					list($tempRevenue) = mysql_fetch_array($hsltemp);
-					$revenue += $tempRevenue;
+				$gross = 0;
+				if($currentdate < date("Y-m-d")){//income money
+					$sql = "SELECT kode FROM trx_billing WHERE tanggal = '".$currentdate."' AND paid='1'";
+					$hslRevenue = mysql_query($sql,$db);
+					while(list($kodeBilling) = mysql_fetch_array($hslRevenue)){
+						$sql = "SELECT sum(debit) FROM trx_billing_details WHERE kode = '".$kodeBilling."'";
+						$hsltemp = mysql_query($sql,$db);
+						list($tempRevenue) = mysql_fetch_array($hsltemp);
+						$gross += $tempRevenue;
+					}
+				} 
+				if($currentdate == date("Y-m-d")){//forcasting OR income money
+					$sql = "SELECT kode,rate1,rate2 FROM trx_booking WHERE DATE(NOW()) >= arrival AND DATE(NOW()) <= departure AND checkindate <> '0000-00-00 00:00:00'";
+					$hslforecast = mysql_query($sql,$db);
+					while(list($kode,$rate1,$rate2) = mysql_fetch_array($hslforecast)){
+						$sql = "SELECT kode FROM trx_billing WHERE booking = '".$kode."'";
+						$hsltemp = mysql_query($sql,$db);
+						list($kodeBilling) = mysql_fetch_array($hsltemp);
+						if($kodeBilling){//income money
+							$sql = "SELECT sum(debit) FROM trx_billing_details WHERE kode = '".$kodeBilling."'";
+							$hsltemp = mysql_query($sql,$db);
+							list($tempRevenue) = mysql_fetch_array($hsltemp);
+							$gross += $tempRevenue;
+						} else {//forcasting
+							$tipeday = date("N");
+							if($tipeday==7 || $tipeday==1 || $tipeday==2 || $tipeday==3 || $tipeday==4){//weekdays minggu - kamis
+								$gross += $rate1;
+							}else{
+								$gross += $rate2;
+							}
+						}
+					}
 				}
+				
+				
+				$revenue = $gross/1.21;
+				$tax21 = $gross - $revenue;
 				
 				$arr = round($revenue/$roomSold);
 				$_roomAvailable += $roomAvailable;
@@ -191,6 +224,8 @@
 				$_roomOO += $roomOO;
 				$_roomOccupied += $roomOccupied;
 				$_roomSold += $roomSold;
+				$_gross += $gross;
+				$_tax21 += $tax21;
 				$_revenue += $revenue;
 				
 		?>
@@ -203,6 +238,9 @@
 				<td align="right"><?=$roomSold;?></td>
 				<td align="right"><?=$occupancy;?></td>
 				<td align="right"><?=number_format($arr);?></td>
+				<td align="right"><?=number_format($gross);?></td>
+				<td align="right"><?=number_format($revenue);?></td>
+				<td align="right"><?=number_format($tax21);?></td>
 				<td align="right"><?=number_format($revenue);?></td>
 			</tr>
 		<?php
@@ -217,6 +255,9 @@
 			<td align="right"><b><?=$_roomSold;?></b></td>
 			<td align="right"><b><?=round($_roomSold/$_roomSaleable*100);;?></b></td>
 			<td align="right"><b><?=number_format(round($_revenue/$_roomSold));?></b></td>
+			<td align="right"><b><?=number_format($_gross);?></b></td>
+			<td align="right"><b><?=number_format($_revenue);?></b></td>
+			<td align="right"><b><?=number_format($_tax21);?></b></td>
 			<td align="right"><b><?=number_format($_revenue);?></b></td>
 		</tr>
 	</table>

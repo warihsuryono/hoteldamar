@@ -13,7 +13,17 @@
 		$sql="SELECT checkin FROM $tablename WHERE $kodename='".$_GET["kode"]."'";
 		$hsltemp=mysql_query($sql,$db);
 		list($__approved)=mysql_fetch_array($hsltemp);
-		if($__approved!=0){ ?> <script language="javascript">alert("Dokumen ini sudah Settled, Sehingga tidak boleh diubah!");window.location="<?php echo $tablename."list.php";?>";</script> <?php }
+		if($__approved!=0){ 
+			?> 
+				<script language="javascript">alert("Dokumen ini sudah Settled, Sehingga tidak boleh diubah!");
+				<?php if($_GET["referral"]){ ?>
+					window.location="<?=$_GET["referral"];?>?kode=<?=$_GET["kode"];?>";
+				<?php } else { ?>
+					window.location="<?php echo $tablename."list.php";?>";
+				<?php } ?>
+				</script> 
+			<?php 
+		}
 	}
 	$sql="SHOW COLUMNS FROM $tabledetailname WHERE field<>'xtimestamp'";
 	$hsltemp=mysql_query($sql,$db);
@@ -172,9 +182,14 @@
 		}
 		?>
 			<script language="javascript">
-				window.location="<?php echo $tablename."list.php";?>";
+				<?php if($_GET["referral"]){ ?>
+					window.location="<?=$_GET["referral"];?>?kode=<?=$_GET["kode"];?>";
+				<?php } else { ?>
+					window.location="<?php echo $tablename."list.php";?>";
+				<?php } ?>
 			</script>
 		<?php
+		exit();
 	}
 ?>
 	<?php include_once "ajax.init.php"; ?>
@@ -224,7 +239,7 @@
 			xmlHttp.send(null);	
 		}
 	</script>
-	<form method="POST" action="<?php echo $__phpself; ?>?editing=<?php echo $_GET["editing"];?>&kode=<?php echo $_GET["kode"]; ?>">
+	<form method="POST" action="<?php echo $__phpself; ?>?editing=<?php echo $_GET["editing"];?>&kode=<?php echo $_GET["kode"]; ?>&referral=<?php echo $_GET["referral"]; ?>">
 		<input type="hidden" id="idseqno" name="idseqno">
 		<input type="hidden" id="grup" name="grup">
 		<input type="hidden" id="dp2" name="dp2">
@@ -563,7 +578,9 @@
 				while(list($_kode,$_desc)=mysql_fetch_array($hsltemp)){
 					?> 
 						if(document.getElementById("chkroom_<?=$_kode; ?>").checked == true){
+							<?php if(!$_GET["editing"]){ ?>
 							loadrate("<?=$_kode;?>");
+							<?php } ?>
 							numberOfRooms++; 
 						}
 					<?php

@@ -178,6 +178,7 @@ trx_booking_view.ValidateRequired = false; // no JavaScript validation
 <br><br>
 <?php if ($trx_booking->Export == "") { ?>
 <input type="button" value="BACK" onclick="window.location='trx_bookinglist.php';">
+<input type="button" value="Edit" onclick="window.location='trx_bookingadd.php?kode=<?php echo $_GET["kode"]; ?>&editing=1&referral=trx_bookingview.php';">
 <input type="button" value="Guest Form" onclick="window.location='trx_guestform.php?kode=<?php echo $_GET["kode"]; ?>';">
 <?php } ?>
 </span></p>
