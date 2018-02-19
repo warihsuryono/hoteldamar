@@ -11,8 +11,10 @@
 	$rooms = array();
 	$books = trim(str_replace("_","/",$_GET["books"]));
 	$books = explode("|",$books);
+	$kodeBooking = "";
 	foreach($books as $book){
 		if($book){
+			if(!$kodeBooking) $kodeBooking = $book;
 			$sql = "SELECT IF(date(checkindate)<>'0000-00-00',date(checkindate),arrival) as checkindate,room,rate1,rate2 FROM trx_booking WHERE kode = '".$book."'";
 			$hsltemp = mysql_query($sql,$db);
 			list($_checkindate,$room,$rate1,$rate2) = mysql_fetch_array($hsltemp);
@@ -24,6 +26,7 @@
 			}
 		}
 	}
+	
 	if(count($rooms) <= 0) exit();
 	$arr=explode("-",$checkindate);
 	$_thn=$arr[0];
@@ -57,12 +60,26 @@
 				<td nowrap><?=format_tanggal($currentdate);?></td>
 				<?php 
 					foreach($rooms as $room => $val){
-						$sql = "SELECT nama FROM mst_room WHERE kode='".$room."'"; $hsltemp=mysql_query($sql,$db);
+						/* $sql = "SELECT nama FROM mst_room WHERE kode='".$room."'"; $hsltemp=mysql_query($sql,$db);
 						list($roomName) = mysql_fetch_array($hsltemp);
 						if($tipeday==7 || $tipeday==1 || $tipeday==2 || $tipeday==3 || $tipeday==4){//weekdays minggu - kamis
  							$rate = $roomrates[$room][1];
 						}else{
  							$rate = $roomrates[$room][2];
+						} */
+						$sql = "SELECT rates FROM trx_booking WHERE kode='".$kodeBooking."'";
+						$hslrates = mysql_query($sql,$db);
+						list($rates) = mysql_fetch_array($hslrates);
+						$rates = unserialize(base64_decode($rates));
+						$rate = $rates[$room][$currentdate];
+						if($rate == 0){
+							$sql = "SELECT nama,price,price2 FROM mst_room WHERE kode='".$room."'"; $hsltemp=mysql_query($sql,$db);
+							list($roomName,$price,$price2) = mysql_fetch_array($hsltemp);
+							if($tipeday==7 || $tipeday==1 || $tipeday==2 || $tipeday==3 || $tipeday==4){//weekdays minggu - kamis
+								$rate = $price;
+							}else{
+								$rate = $price2;
+							}
 						}
 				?>
 					<td align="right">

@@ -52,8 +52,9 @@
 		}
 		
 		if(count($_POST["rooms"]) <= 0){$errormessage="Pilih Room!";$datavalid=false;}
-		if(!$rate1){$errormessage="Isi Rate Week Days!";$datavalid=false;}
-		if(!$rate2){$errormessage="Isi Rate Week End!";$datavalid=false;}
+		if(count($_POST["rate"]) <= 0){$errormessage="Isi Rate!";$datavalid=false;}
+		// if(!$rate1){$errormessage="Isi Rate Week Days!";$datavalid=false;}
+		// if(!$rate2){$errormessage="Isi Rate Week End!";$datavalid=false;}
 		if(!$refno && $dp > 0){$errormessage="Isi Reference Number!";$datavalid=false;}
 	}
 	
@@ -175,6 +176,9 @@
 					// echo "<br>$sql => ".mysql_error();
 				}
 			}
+			$sql = "UPDATE trx_booking SET rates='".base64_encode(serialize($_POST["rate"]))."' WHERE kode = '".$kode."'";
+			mysql_query($sql,$db);
+			
 			if($modebutton=="simpandancheckin"){
 				$sql="UPDATE trx_booking SET confirmasi='1',confirmby='".$_SESSION["username"]."',confirmdate=NOW(),checkin='1',checkinby='".$_SESSION["username"]."',checkindate=NOW() WHERE kode='$kode'";
 				mysql_query($sql,$db);
@@ -212,20 +216,36 @@
 			xmlHttp.open("GET","ajax.cekroomavailable.php?kode=<?php echo $_GET["kode"]; ?>&room="+room+"&arrival="+arrival+"&departure="+departure,true);
 			xmlHttp.send(null);	
 		}
-		function loadrate(room){
+		
+		function loadrate(){
+			document.getElementById("RoomRate").innerHTML = "<img src='images/loading.gif' width='50'>";
 			var xmlHttp;
+			var numberOfRooms = 0;
+			var rooms = "";
+			var reservationRooms = document.getElementById("reservationRooms");
+			for(var xx = 0; xx < reservationRooms.childNodes.length; xx++){
+				if(reservationRooms.childNodes[xx].type == "checkbox" && reservationRooms.childNodes[xx].checked == true){
+					rooms += reservationRooms.childNodes[xx].id.replace("chkroom_","")+"|";
+					numberOfRooms++;
+				}
+			}
+			if(numberOfRooms > 1){
+				document.getElementById("numberOfRooms").innerHTML = numberOfRooms+" Rooms";
+			} else if(numberOfRooms >= 0) {
+				document.getElementById("numberOfRooms").innerHTML = numberOfRooms+" Room";
+			}
+			
 			xmlHttp=initializexmlHttp();
 			xmlHttp.onreadystatechange=function() {
 				if(xmlHttp.readyState==4) {
 					returnvalue=xmlHttp.responseText;
-					arrreturnvalue=returnvalue.split("|||");
-					document.getElementById("rate1").value=arrreturnvalue[0];
-					document.getElementById("rate2").value=arrreturnvalue[1];
+					document.getElementById("RoomRate").innerHTML = returnvalue;
 				}
 			}
-			xmlHttp.open("GET","ajax.loadrate.php?room="+room,true);
+			xmlHttp.open("GET","ajax.loadrate.php?rooms="+rooms+"&isediting=<?=$_GET["editing"];?>&kodeBooking=<?=$_GET["kode"];?>&arrival="+document.getElementById("arrival").value+"&departure="+document.getElementById("departure").value,true);
 			xmlHttp.send(null);	
 		}
+		
 		function loaddisc(discname){
 			var xmlHttp;
 			xmlHttp=initializexmlHttp();
@@ -337,15 +357,15 @@
 							<td>Arrival</td>
 							<td>:</td>
 							<td>
-								<input id="arrival" type="text" name="arrival" value="<?php echo $arrival; ?>" size="12">
-								<img src="images/calendar.png" title="Calendar" border="0" width="13" height="13" onclick="showCalendar('arrival')">
+								<input id="arrival" type="text" name="arrival" value="<?php echo $arrival; ?>" size="12" onchange="loadrate();" onblur="loadrate();">
+								<img src="images/calendar.png" title="Calendar" border="0" width="13" height="13" onclick="showCalendar('arrival');">
 							</td>
 						</tr>
 						<tr>
 							<td>Departure</td>
 							<td>:</td>
 							<td>
-								<input id="departure" type="text" name="departure" value="<?php echo $departure; ?>" size="12">
+								<input id="departure" type="text" name="departure" value="<?php echo $departure; ?>" size="12" onchange="loadrate();" onblur="loadrate();">
 								<img src="images/calendar.png" title="Calendar" border="0" width="13" height="13" onclick="showCalendar('departure')">
 							</td>
 						</tr>
@@ -362,29 +382,14 @@
 										$hsltemp=mysql_query($sql,$db);
 										while(list($_kode,$_desc)=mysql_fetch_array($hsltemp)){
 									?>
-										<input onchange="loadNumberOfRooms();" type="checkbox" id="chkroom_<?=$_kode; ?>" name="rooms[<?=$_kode; ?>]" value="1" <?php if($_POST["rooms"][$_kode]){echo "checked";} ?>><?=$_desc; ?><br>
+										<input onchange="loadrate();" type="checkbox" id="chkroom_<?=$_kode; ?>" name="rooms[<?=$_kode; ?>]" value="1" <?php if($_POST["rooms"][$_kode]){echo "checked";} ?>><?=$_desc; ?><br>
 									<?php
 										}
 									?>
 								</div>
-								<!--select name="room" id="room" onchange="loadrate(this.value);cekroomavailable();">
-									<option value="">-room-</option>
-									<?php 
-										$sql="SELECT kode,nama FROM mst_room ORDER BY kode";
-										if($_GET["roomtype"]){
-											$sql="SELECT kode,nama FROM mst_room WHERE tipe='".$_GET["roomtype"]."' ORDER BY kode";
-										}
-										$hsltemp=mysql_query($sql,$db);
-										while(list($_kode,$_desc)=mysql_fetch_array($hsltemp)){
-									?>
-										<option value="<?php echo $_kode; ?>"><?php echo $_desc; ?></option>
-									<?php
-										}
-									?>
-								</select-->
 							</td>
 						</tr>
-						<tr>
+						<!--tr>
 							<td>Rate Week Days</td>
 							<td>:</td>
 							<td>
@@ -397,7 +402,7 @@
 							<td>
 								<input id="rate2" type="text" name="rate2" size="20" style="text-align:right;">
 							</td>
-						</tr>
+						</tr-->
 						<tr>
 							<td>Alamat</td>
 							<td>:</td>
@@ -553,6 +558,8 @@
 							<td><textarea name="notes" id="notes" cols="50" rows="2"></textarea></td>
 						</tr>
 					</table>
+					<br>
+					<table><tr><td valign="top" id="RoomRate" width="1"></td></tr></table>
 				</td>
 			</tr>
 		</table>
@@ -567,32 +574,7 @@
 				document.getElementById("simpanCheckin").style.visibility = "hidden";
 			}
 		}
-		function loadNumberOfRooms(){
-			var numberOfRooms = 0;
-			<?php 
-				$sql="SELECT kode,nama FROM mst_room ORDER BY kode";
-				if($_GET["roomtype"]){
-					$sql="SELECT kode,nama FROM mst_room WHERE tipe='".$_GET["roomtype"]."' ORDER BY kode";
-				}
-				$hsltemp=mysql_query($sql,$db);
-				while(list($_kode,$_desc)=mysql_fetch_array($hsltemp)){
-					?> 
-						if(document.getElementById("chkroom_<?=$_kode; ?>").checked == true){
-							<?php if(!$_GET["editing"]){ ?>
-							loadrate("<?=$_kode;?>");
-							<?php } ?>
-							numberOfRooms++; 
-						}
-					<?php
-				}
-			?>
-			if(numberOfRooms > 1){
-				document.getElementById("numberOfRooms").innerHTML = numberOfRooms+" Rooms";
-			} else if(numberOfRooms >= 0) {
-				document.getElementById("numberOfRooms").innerHTML = numberOfRooms+" Room";
-			}
-		}
-		loadNumberOfRooms();
+		loadrate();
 	</script>
 	<table width="100%">
 		<tr>
@@ -655,7 +637,7 @@
 			}
 		}
 		
-		?><script language="javascript">loadNumberOfRooms();</script><?php
+		?><script language="javascript">loadrate();</script><?php
 		?><script language="javascript">document.getElementById("<?php echo $kodename; ?>").value="<?php echo $kode; ?>";</script><?php
 	}
 	if($modebutton=="reload" || $modebutton=="simpan"){

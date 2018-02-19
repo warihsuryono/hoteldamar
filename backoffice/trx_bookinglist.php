@@ -40,12 +40,24 @@ $trx_booking_list->Page_Main();
 function todayArrival(){
 	document.getElementById("x_arrival").value = "<?=date("d/m/Y");?>";
 	document.getElementById("x_departure").value = "";
+	document.getElementById("z_arrival").value = "=";
+	document.getElementById("z_departure").value = "=";
 	document.getElementById("Submit").click();
 }
 
 function todayDeparture(){
 	document.getElementById("x_arrival").value = "";
 	document.getElementById("x_departure").value = "<?=date("d/m/Y");?>";
+	document.getElementById("z_arrival").value = "=";
+	document.getElementById("z_departure").value = "=";
+	document.getElementById("Submit").click();
+}
+
+function todayExtend(){
+	document.getElementById("x_arrival").value = "<?=date("d/m/Y");?>";
+	document.getElementById("x_departure").value = "<?=date("d/m/Y");?>";
+	document.getElementById("z_arrival").value = "<";
+	document.getElementById("z_departure").value = ">";
 	document.getElementById("Submit").click();
 }
 
@@ -517,6 +529,8 @@ if (is_array($arwrk)) {
 <input type="button" name="today_arrival" value="Today Arrival" onclick="todayArrival();">
 &nbsp;
 <input type="button" name="today_departure" value="Today Departure" onclick="todayDeparture();">
+&nbsp;
+<input type="button" name="today_extend" value="Today Extend" onclick="todayExtend();">
 <!--input type="button" name="AddGroup" value="Group Reservation" onclick="window.location='trx_bookingaddgroup.php';"-->
 </span>
 </div>
@@ -608,7 +622,8 @@ foreach ($trx_booking_list->ListOptions->Items as $ListOption) {
 			<table cellspacing="0" class="ewTableHeaderBtn"><tr><td>Room</td><td style="width: 10px;"><?php if ($trx_booking->room->getSort() == "ASC") { ?><img src="images/sortup.gif" width="10" height="9" border="0"><?php } elseif ($trx_booking->room->getSort() == "DESC") { ?><img src="images/sortdown.gif" width="10" height="9" border="0"><?php } ?></td></tr></table>
 		</td>
 	<?php } ?>
-<?php } ?>		
+<?php } ?>
+<!--	
 <?php if ($trx_booking->person->Visible) { // person ?>
 	<?php if ($trx_booking->SortUrl($trx_booking->person) == "") { ?>
 		<td style="white-space: nowrap;">Person</td>
@@ -618,6 +633,7 @@ foreach ($trx_booking_list->ListOptions->Items as $ListOption) {
 		</td>
 	<?php } ?>
 <?php } ?>		
+-->
 <?php if ($trx_booking->arrival->Visible) { // arrival ?>
 	<?php if ($trx_booking->SortUrl($trx_booking->arrival) == "") { ?>
 		<td style="white-space: nowrap;">Arrival</td>
@@ -636,6 +652,8 @@ foreach ($trx_booking_list->ListOptions->Items as $ListOption) {
 		</td>
 	<?php } ?>
 <?php } ?>		
+<td style="white-space: nowrap;">Catatan</td>
+<!--	
 <?php if ($trx_booking->discname->Visible) { // discname ?>
 	<?php if ($trx_booking->SortUrl($trx_booking->discname) == "") { ?>
 		<td style="white-space: nowrap;">Discname</td>
@@ -654,6 +672,7 @@ foreach ($trx_booking_list->ListOptions->Items as $ListOption) {
 		</td>
 	<?php } ?>
 <?php } ?>		
+-->
 <?php if ($trx_booking->confirmasi->Visible) { // confirmasi ?>
 	<?php if ($trx_booking->SortUrl($trx_booking->confirmasi) == "") { ?>
 		<td style="white-space: nowrap;">Confirmasi</td>
@@ -771,11 +790,13 @@ foreach ($trx_booking_list->ListOptions->Items as $ListOption) {
 <div<?php echo $trx_booking->room->ViewAttributes() ?>><?php echo $trx_booking->room->ListViewValue() ?></div>
 </td>
 	<?php } ?>
+<!--
 	<?php if ($trx_booking->person->Visible) { // person ?>
 		<td<?php echo $trx_booking->person->CellAttributes() ?>>
 <div<?php echo $trx_booking->person->ViewAttributes() ?>><?php echo $trx_booking->person->ListViewValue() ?></div>
 </td>
 	<?php } ?>
+-->
 	<?php if ($trx_booking->arrival->Visible) { // arrival ?>
 		<td<?php echo $trx_booking->arrival->CellAttributes() ?>>
 <div<?php echo $trx_booking->arrival->ViewAttributes() ?>><?php echo $trx_booking->arrival->ListViewValue() ?></div>
@@ -786,6 +807,14 @@ foreach ($trx_booking_list->ListOptions->Items as $ListOption) {
 <div<?php echo $trx_booking->departure->ViewAttributes() ?>><?php echo $trx_booking->departure->ListViewValue() ?></div>
 </td>
 	<?php } ?>
+	<?php 
+		$sql = "SELECT notes FROM trx_booking WHERE kode = '".$trx_booking->kode->ListViewValue()."'"; $hsltemp = mysql_query($sql,$db);
+		list($notes) = mysql_fetch_array($hsltemp);
+	?>
+	<td<?php echo $trx_booking->notes->CellAttributes() ?>>
+	<div<?php echo $trx_booking->notes->ViewAttributes() ?>><?php echo $notes; ?></div>
+	</td>
+<!--	
 	<?php if ($trx_booking->discname->Visible) { // discname ?>
 		<td<?php echo $trx_booking->discname->CellAttributes() ?>>
 <div<?php echo $trx_booking->discname->ViewAttributes() ?>><?php echo $trx_booking->discname->ListViewValue() ?></div>
@@ -796,6 +825,7 @@ foreach ($trx_booking_list->ListOptions->Items as $ListOption) {
 <div<?php echo $trx_booking->disc->ViewAttributes() ?>><?php echo $trx_booking->disc->ListViewValue() ?></div>
 </td>
 	<?php } ?>
+-->
 	<?php if ($trx_booking->confirmasi->Visible) { // confirmasi ?>
 		<td<?php echo $trx_booking->confirmasi->CellAttributes() ?>>
 <div<?php echo $trx_booking->confirmasi->ViewAttributes() ?>><?php echo $trx_booking->confirmasi->ListViewValue() ?></div>

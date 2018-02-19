@@ -411,20 +411,6 @@ trx_booking_view.ValidateRequired = false; // no JavaScript validation
 <div<?php echo $trx_booking->departure->ViewAttributes() ?>><?php echo $trx_booking->departure->ViewValue ?></div></td>
 	</tr>
 <?php } ?>
-<?php if ($trx_booking->rate->Visible) { // rate1 ?>
-	<tr<?php echo $trx_booking->rate->RowAttributes ?>>
-		<td class="ewTableHeader">Rate Week Days</td>
-		<td<?php echo $trx_booking->rate->CellAttributes() ?>>
-<div<?php echo $trx_booking->rate->ViewAttributes() ?>><?php echo number_format($rate1); ?></div></td>
-	</tr>
-<?php } ?>
-<?php if ($trx_booking->rate->Visible) { // rate2 ?>
-	<tr<?php echo $trx_booking->rate->RowAttributes ?>>
-		<td class="ewTableHeader">Rate Week End</td>
-		<td<?php echo $trx_booking->rate->CellAttributes() ?>>
-<div<?php echo $trx_booking->rate->ViewAttributes() ?>><?php echo number_format($rate2) ?></div></td>
-	</tr>
-<?php } ?>
 <?php if ($trx_booking->extraperson->Visible) { // extraperson ?>
 	<tr<?php echo $trx_booking->extraperson->RowAttributes ?>>
 		<td class="ewTableHeader">Extraperson</td>
@@ -490,6 +476,47 @@ trx_booking_view.ValidateRequired = false; // no JavaScript validation
 	</tr>
 <?php } ?>
 </table>
+	<fieldset>
+		<legend><b>Room Rate</b></legend>
+		<table border="1">
+			<tr>
+				<td><b>Tanggal</b></td>
+				<?php
+					$sql = "SELECT rates FROM trx_booking WHERE kode='".$_GET["kode"]."'";
+					$hslrates = mysql_query($sql,$db);
+					list($rates) = mysql_fetch_array($hslrates);
+					$rates = unserialize(base64_decode($rates));
+					$dates = array();
+					$rooms = array();
+					foreach($rates as $room => $arrdate){
+						if($room){
+							$rooms[$room] = 1;
+							$sql = "SELECT nama FROM mst_room WHERE kode='".$room."'"; $hsltemp=mysql_query($sql,$db);
+							list($roomName) = mysql_fetch_array($hsltemp);
+							?><td nowrap><b><?=$roomName;?></b></td><?php 
+							foreach($arrdate as $currentdate => $rate){
+								$dates[$currentdate] = 1;
+							}
+						} 
+					} 
+				?>
+			</tr>
+			<?php
+				foreach($dates as $currentdate => $val){
+			?>
+				<tr>
+					<td nowrap><?=format_tanggal($currentdate);?></td>
+					<?php 
+						foreach($rooms as $room => $val){
+							if($room){
+								?> <td align="right"><?=number_format($rates[$room][$currentdate]);?></td> <?php 
+							} 
+						} 
+					?>
+				</tr>
+			<?php } ?>
+		</table>
+	</fieldset>
 </div>
 </td></tr>
 
