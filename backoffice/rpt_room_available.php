@@ -137,7 +137,7 @@
 			$arrtotal = array();
 			$sql="SELECT id,description FROM mst_room_type ORDER BY id";
 			$hslroom=mysql_query($sql,$db);
-			while(list($id,$nama)=mysql_fetch_array($hslroom)){
+			while(list($room_type_id,$nama)=mysql_fetch_array($hslroom)){
 				$no++;
 		?>
 			<tr>
@@ -147,27 +147,41 @@
 						$tgl=$tanggal1+$day; 
 						$currentdate=date("Y-m-d",mktime(0,0,0,$bulan1,$tgl,$tahun1));
 						
-						$sql="SELECT count(0) FROM mst_room WHERE tipe='".$id."' AND status > '0'"; $hsltemp = mysql_query($sql,$db);
-						list($roomtotal) = mysql_fetch_array($hsltemp);
+						$sql = "SELECT count(0) FROM mst_room WHERE tipe='".$room_type_id."'"; $hsltemp = mysql_query($sql,$db);
+						list($roomAvailable) = mysql_fetch_array($hsltemp);
+						
+						$roomOO = 0;
+						$sql = "SELECT kode FROM mst_room WHERE tipe='".$room_type_id."'";
+						$hslroom2 = mysql_query($sql,$db);
+						while(list($kodeRoom) = mysql_fetch_array($hslroom2)){
+							$sql = "SELECT id,status FROM room_status_history WHERE room_id='".$kodeRoom."' AND effective_at <= '".$currentdate."' ORDER BY effective_at DESC LIMIT 1";
+							$hsltemp = mysql_query($sql,$db);
+							list($roomStatusId,$roomStatus) = mysql_fetch_array($hsltemp);
+							if($roomStatus == 0 && $roomStatusId > 0) $roomOO++;
+						}
+						$roomtotal = $roomAvailable - $roomOO;
 						
 						$checkintotal = 0;
-						$sql="SELECT count(0) FROM trx_booking WHERE room IN (SELECT kode FROM mst_room WHERE tipe='".$id."') AND checkin='1' AND arrival<='".$currentdate."' GROUP BY room";
+						$sql="SELECT count(0) FROM trx_booking WHERE room IN (SELECT kode FROM mst_room WHERE tipe='".$room_type_id."') AND checkin='1' AND arrival<='".$currentdate."' GROUP BY room";
+						if($periode1 > "2018-02-28") $sql="SELECT count(0) FROM trx_booking WHERE room IN (SELECT kode FROM mst_room WHERE tipe='".$room_type_id."') AND checkin='1' AND arrival>='2018-03-01' AND arrival<='".$currentdate."' AND  GROUP BY room";
 						$hsltemp = mysql_query($sql,$db);
 						while(list($total) = mysql_fetch_array($hsltemp)){
 							$checkintotal += $total;
 						}
 						
 						$checkouttotal = 0;
-						$sql="SELECT count(0) FROM trx_billing WHERE room IN (SELECT kode FROM mst_room WHERE tipe='".$id."') AND paid='1' AND tanggal<='".$currentdate."' GROUP BY room";
+						$sql="SELECT count(0) FROM trx_billing WHERE room IN (SELECT kode FROM mst_room WHERE tipe='".$room_type_id."') AND paid='1' AND tanggal<='".$currentdate."' GROUP BY room";
+						if($periode1 > "2018-02-28") $sql="SELECT count(0) FROM trx_billing WHERE room IN (SELECT kode FROM mst_room WHERE tipe='".$room_type_id."') AND paid='1' AND tanggal>'2018-03-01' AND tanggal<='".$currentdate."' AND booking IN (SELECT kode FROM trx_booking WHERE room IN (SELECT kode FROM mst_room WHERE tipe='".$room_type_id."') AND checkin='1' AND arrival>='2018-03-01') GROUP BY room";
 						$hsltemp = mysql_query($sql,$db);
 						while(list($total) = mysql_fetch_array($hsltemp)){
 							$checkouttotal += $total;
 						}
 						
 						$available = $roomtotal - $checkintotal + $checkouttotal;
+						if($available > $roomtotal) $available = $roomtotal;
 						$arrtotal[$currentdate] += $available;
 						if($available > 0){
-							$available = "<a href='trx_bookingadd.php?roomtype=".$id."&arrivalDate=".$currentdate."'>".$available."</a>";
+							$available = "<a href='trx_bookingadd.php?roomtype=".$room_type_id."&arrivalDate=".$currentdate."'>".$available."</a>";
 						}
 				?>
 					<td align="right" valign="top"><?php echo $available; ?></td>
