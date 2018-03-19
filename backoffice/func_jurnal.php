@@ -51,6 +51,23 @@
 			}
 		}
 		
+		//MISCELLANEOUS PAID
+		$sql = "SELECT kode,(qty*price) as debit,keterangan FROM trx_additional_detail WHERE kode IN (SELECT kode FROM trx_additional WHERE paid='1' AND tanggal BETWEEN '".$date1."' AND '".$date2."')";
+		$hsl = mysql_query($sql,$db);
+		while($payments = mysql_fetch_array($hsl)){
+			$sql = "SELECT tanggal,refno,kodebooking,notes FROM trx_additional WHERE kode='".$payments["kode"]."'";$hsltemp=mysql_query($sql,$db);
+			list($tanggal,$refno,$kodebooking,$notes) = mysql_fetch_array($hsltemp);
+			
+			$sql = "SELECT title,nama,room FROM trx_booking WHERE kode='".$kodebooking."'";$hsltemp=mysql_query($sql,$db);
+			list($title,$nama,$room) = mysql_fetch_array($hsltemp);
+			
+			$description = "MISCELLANEOUS [Cash] -- ".$notes." (".getRoomName($room).") ".format_tanggal($tanggal)."  a/n ".$title.". ".$nama;
+			$sql = "INSERT INTO trx_mutasi (trxDate,byGenerated,coa,refno,debit,credit,description,created_at,created_by) VALUES ";
+			$sql .= "('".$tanggal."','1','1.0.00','".$refno."','".$payments["debit"]."','0','".$description."',NOW(),'".$__username."')";
+			mysql_query($sql,$db);
+			if(mysql_affected_rows($db) > 0) $affected++;
+		}
+		
 		//PAID
 		if($dptype == "01") $depositType = "Cash";
 		if($dptype == "02") $depositType = "EDC";

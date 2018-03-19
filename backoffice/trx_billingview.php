@@ -512,7 +512,7 @@
 					$sql="SELECT kode,tanggal,paid,refno FROM trx_additional WHERE kodebooking='$kodebooking' ORDER BY kode";
 					$hsladditionals = mysql_query($sql,$db);
 					while(list($kode_additional,$additionalDate,$paid,$refno) = mysql_fetch_array($hsladditionals)){
-						$sql="SELECT kode,kode_add,qty,price,keterangan FROM trx_additional_detail WHERE kode='$kode_additional'  ORDER BY kode,seqno";
+						$sql="SELECT kode,kode_add,qty,(price * qty),keterangan FROM trx_additional_detail WHERE kode='$kode_additional'  ORDER BY kode,seqno";
 						$hsladditionaldetail=mysql_query($sql,$db);
 						while(list($billno,$addid,$qty,$price,$keterangan)=mysql_fetch_array($hsladditionaldetail)){
 							$sql="SELECT description FROM mst_additional WHERE kode='$addid'";$hsltemp=mysql_query($sql,$db);
